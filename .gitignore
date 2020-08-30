@@ -13,3 +13,5 @@ gradle/*
 gradlew
 gradlew.bat
 
+# logs produced by gradle
+log
