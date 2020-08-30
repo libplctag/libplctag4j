@@ -49,7 +49,45 @@ public class TagTest {
         Tag tag = new Tag("make=system&family=library&name=debug", TIMEOUT);
         assertEquals("Tag was not created correctly!", tag.getStatus(), Tag.PLCTAG_STATUS_OK);
 
-        
+        Tag.TagEventCallbackInterface eventCallback = new Tag.TagEventCallbackInterface(){
+            public void invoke(int tag_id, int event, int status) {
+                String eventMsg;
+
+                switch(event) {
+                    case Tag.PLCTAG_EVENT_ABORTED:
+                        eventMsg = "operation aborted";
+                        break;
+
+                    case Tag.PLCTAG_EVENT_DESTROYED:
+                        eventMsg = "being destroyed";
+                        break;
+
+                    case Tag.PLCTAG_EVENT_READ_COMPLETED:
+                        eventMsg = "read completed";
+                        break;
+
+                    case Tag.PLCTAG_EVENT_READ_STARTED:
+                        eventMsg = "read started";
+                        break;
+
+                    case Tag.PLCTAG_EVENT_WRITE_COMPLETED:
+                        eventMsg = "write completed";
+                        break;
+
+                    case Tag.PLCTAG_EVENT_WRITE_STARTED:
+                        eventMsg = "write started";
+                        break;
+
+                    default:
+                        eventMsg = "unknown event!";
+                        break;
+                }
+
+                System.err.println("Tag " + tag_id + " " + eventMsg + " with status " + Tag.decodeError(status) + ".");
+            }
+        };
+
+        assertEquals("Unable to register tag event callback!", tag.registerEventCallback(eventCallback), Tag.PLCTAG_STATUS_OK);
         
         // write the DEBUG_DETAIL log value.
         assertEquals("Unable to update debug tag!", tag.setInt32(0, Tag.PLCTAG_DEBUG_INFO), Tag.PLCTAG_STATUS_OK);
