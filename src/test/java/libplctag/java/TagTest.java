@@ -47,7 +47,9 @@ public class TagTest {
         Tag.setDebugLevel(Tag.PLCTAG_DEBUG_DETAIL);
        
         Tag tag = new Tag("make=system&family=library&name=debug", TIMEOUT);
-        assertEquals("Tag was not created correctly!", tag.status(), Tag.PLCTAG_STATUS_OK);
+        assertEquals("Tag was not created correctly!", tag.getStatus(), Tag.PLCTAG_STATUS_OK);
+
+        
         
         // write the DEBUG_DETAIL log value.
         assertEquals("Unable to update debug tag!", tag.setInt32(0, Tag.PLCTAG_DEBUG_INFO), Tag.PLCTAG_STATUS_OK);
