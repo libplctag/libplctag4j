@@ -8,13 +8,13 @@ This library is a single JAR including all the needed parts to communicate with 
 
 ### Tier 1 Platforms
 
-The following platforms will continue to be supported (as long as their maintainers will continue to support them):
+This library primarily supports the following platforms:
 
 - Linux x86 and x64, Ubuntu/Debian
 - Microsoft Windows 10 x86 and x64
 - Apple macOS x64
 
-The C library will build on many platforms so support for other operating systems and CPUs is possible but not directly part of this library.   Patches and help gladly accepted!
+The C library will build on many of the platforms on which Java is available so support for other operating systems and CPUs is possible but not directly part of this library.   Patches and help gladly accepted!
 
 ### License
 
