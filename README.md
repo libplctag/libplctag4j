@@ -30,13 +30,12 @@ Several things need to be completed before this can be considered a full release
 - [x] Move to Gradle-based build.
 - [x] Separate out Java wrapper into separate repo.
 - [x] Include native DLL, JNA into single libplctag.java JAR.
+- [x] Support external DLLs for development and tier 2 platforms.
 - [x] Rename repo/project to libplctag4j.
+- [x] Add basic event callback support.
+- [x] Add basic logging callback support.
 - [ ] Create examples
-   - [ ] tag_rw clone
+   - [ ] tag_rw clone.
    - [ ] Tag listing.
+   - [ ] Callbacks.
 - [ ] CI integration.
-
-### Future Work   
-
-- [ ] Add wrappers and examples for callback functions.
-- [ ] support external DLLs more easily (to support tier 2 platforms).

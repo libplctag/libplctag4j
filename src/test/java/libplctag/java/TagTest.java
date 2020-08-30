@@ -49,7 +49,7 @@ public class TagTest {
         Tag tag = new Tag("make=system&family=library&name=debug", TIMEOUT);
         assertEquals("Tag was not created correctly!", tag.getStatus(), Tag.PLCTAG_STATUS_OK);
 
-        Tag.TagEventCallbackInterface eventCallback = new Tag.TagEventCallbackInterface(){
+        Tag.EventCallbackInterface eventCallback = new Tag.EventCallbackInterface(){
             public void invoke(int tag_id, int event, int status) {
                 String eventMsg;
 
@@ -89,6 +89,14 @@ public class TagTest {
 
         assertEquals("Unable to register tag event callback!", tag.registerEventCallback(eventCallback), Tag.PLCTAG_STATUS_OK);
         
+        Tag.LoggingCallbackInterface loggingCallback = new Tag.LoggingCallbackInterface(){
+            public void invoke(int tag_id, int debugLevel, String msg) {
+                System.err.println("Tag " + tag_id + " debug level " + debugLevel + ": " + msg);
+            }
+        };
+
+        assertEquals("Unable to register logging callback!", Tag.registerLoggerCallback(loggingCallback), Tag.PLCTAG_STATUS_OK);
+
         // write the DEBUG_DETAIL log value.
         assertEquals("Unable to update debug tag!", tag.setInt32(0, Tag.PLCTAG_DEBUG_INFO), Tag.PLCTAG_STATUS_OK);
         
@@ -97,6 +105,8 @@ public class TagTest {
         
         // attempt read the DEBUG log value.
         assertEquals("Debug value not set!", Tag.getLibraryAttribute("debug", -1), Tag.PLCTAG_DEBUG_INFO);
+
+        assertEquals("Unable to unregister logging callback!", Tag.unregisterLogger(), Tag.PLCTAG_STATUS_OK);
         
         tag.close();
     }

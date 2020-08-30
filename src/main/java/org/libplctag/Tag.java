@@ -664,19 +664,24 @@ public class Tag {
     public static final int PLCTAG_EVENT_WRITE_COMPLETED   = (4);
     public static final int PLCTAG_EVENT_ABORTED           = (5);
     public static final int PLCTAG_EVENT_DESTROYED         = (6);
-    public interface TagEventCallbackInterface extends Callback {
-        void invoke(int tag_id, int event, int status);
+    public interface EventCallbackInterface extends Callback {
+        public void invoke(int tag_id, int event, int status);
     }
 
-    private TagEventCallbackInterface eventCallback;
+    // Keep a reference here so that GC does not get it.
+    private EventCallbackInterface eventCallback;
 
-    public int registerEventCallback(TagEventCallbackInterface callback) {
-        // we need to make sure the GC does not kill this off.
-        this.eventCallback = callback;
-        return Tag.plc_tag_register_callback(this.tag_id, callback);
+    public int registerEventCallback(EventCallbackInterface callback) {
+        int rc = Tag.plc_tag_register_callback(this.tag_id, callback);
+
+        if(rc == Tag.PLCTAG_STATUS_OK) {
+            this.eventCallback = callback;
+        }
+
+        return rc;
     }
 
-    private static native int plc_tag_register_callback(int tag_id, TagEventCallbackInterface callback);
+    private static native int plc_tag_register_callback(int tag_id, EventCallbackInterface callback);
 
 
     /*
@@ -703,7 +708,7 @@ public class Tag {
     /*
     * registerLogger
     *
-    * This function registers the passed callback function with the library.  Only one callback function
+    * This function registers the passed callback function with the _library_.  Only one callback function
     * may be registered with the library at a time!
     *
     * Once registered, the function will be called with any logging message that is normally printed due 
@@ -720,15 +725,24 @@ public class Tag {
     * If all is successful, the function will return PLCTAG_STATUS_OK.
     */
 
-    public interface TagLoggerCallbackInterface extends Callback {
-        void invoke(int tag_id, int debugLevel, String msg);
+    public interface LoggingCallbackInterface extends Callback {
+        public void invoke(int tag_id, int debugLevel, String msg);
     }
 
-    public static int registerLoggerCallback(TagLoggerCallbackInterface callback) {
-        return Tag.plc_tag_register_logger(callback);
+    /* as with the event callback, we need to keep this to prevent GC from getting it. */
+    private static LoggingCallbackInterface loggingCallback;
+
+    public static synchronized int registerLoggerCallback(LoggingCallbackInterface callback) {
+        int rc = Tag.plc_tag_register_logger(callback);
+
+        if(rc == Tag.PLCTAG_STATUS_OK) {
+            Tag.loggingCallback = callback;
+        }
+
+        return rc;
     }
 
-    private static native int plc_tag_register_logger(TagLoggerCallbackInterface callback);
+    private static native int plc_tag_register_logger(LoggingCallbackInterface callback);
 
 
     /*
@@ -742,7 +756,8 @@ public class Tag {
     * An error of PLCTAG_ERR_NOT_FOUND is returned if there was no registered callback.
     */
 
-    public static int unregisterLogger() {
+    public static synchronized int unregisterLogger() {
+        Tag.loggingCallback = null;
         return Tag.plc_tag_unregister_logger();
     }
 
