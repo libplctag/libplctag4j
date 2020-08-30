@@ -36,6 +36,8 @@ plugins {
     id 'java'
 }
 
+version = '0.8.0'
+
 repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
@@ -48,7 +50,6 @@ dependencies {
     //api 'org.apache.commons:commons-math3:3.6.1'
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation 'com.google.guava:guava:28.0-jre'
     implementation 'net.java.dev.jna:jna:5.6.0'
     implementation 'org.scijava:native-lib-loader:2.3.4'
 
@@ -62,6 +63,10 @@ dependencies {
 jar {
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    
+	from{
+        ["LICENSE-2.LGPL","LICENSE-1.MPL","NativeLibLoader-License.txt"]
     }
 }
 
