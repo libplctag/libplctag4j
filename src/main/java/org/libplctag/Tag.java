@@ -43,7 +43,7 @@ import com.sun.jna.*;
 
 public class Tag {
     public static final String JNA_LIBRARY_NAME = "plctag";
-    public static final NativeLibrary JNA_NATIVE_LIB = NativeLibrary.getInstance(Tag.JNA_LIBRARY_NAME);
+    public static NativeLibrary JNA_NATIVE_LIB = null;
 
     static {
         /* DEBUG - output the Java system path */
@@ -57,6 +57,7 @@ public class Tag {
     	try {
             // try to load the library from the system first.
             System.loadLibrary(Tag.JNA_LIBRARY_NAME);
+            JNA_NATIVE_LIB = NativeLibrary.getInstance(Tag.JNA_LIBRARY_NAME);
             System.err.println("Found library in system path.");
         } catch (UnsatisfiedLinkError e) {
             System.err.println("Did not find library in system path.   Trying included library in JAR.");
@@ -65,6 +66,7 @@ public class Tag {
             try {
                 NativeLoader.loadLibrary(Tag.JNA_LIBRARY_NAME); 
                 System.err.println("Found library in JAR.");
+                JNA_NATIVE_LIB = NativeLibrary.getInstance(Tag.JNA_LIBRARY_NAME);
             } catch (IOException e1) {
                 System.err.println("Could not find usable library in system path or in DLL!");
                 e1.printStackTrace();
