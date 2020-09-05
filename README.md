@@ -34,8 +34,9 @@ Several things need to be completed before this can be considered a full release
 - [x] Rename repo/project to libplctag4j.
 - [x] Add basic event callback support.
 - [x] Add basic logging callback support.
+- [x] Add basic tests.
+- [ ] CI integration.
 - [ ] Create examples
    - [ ] tag_rw clone.
    - [ ] Tag listing.
    - [ ] Callbacks.
-- [ ] CI integration.
