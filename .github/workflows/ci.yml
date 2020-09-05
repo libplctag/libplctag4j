@@ -27,7 +27,15 @@ jobs:
 
     - name: Get artifact name
       run: |
-        export ARTIFACT_NAME=`ls ${{ github.workspace }}/build/libs/libplctag4j-*.jar | tail -1 | basename`
+        echo "full file list"
+        ls ${{ github.workspace }}/build/libs/libplctag4j-*.jar
+        echo "tail -n 1"
+        ls ${{ github.workspace }}/build/libs/libplctag4j-*.jar | tail -n 1
+        echo "basename"
+        export FULL_NAME=`ls ${{ github.workspace }}/build/libs/libplctag4j-*.jar | tail -n 1`
+        basename ${FULL_NAME}
+        echo "make artifact name"
+        export ARTIFACT_NAME=`basename ${FULL_NAME}`
         echo "ARTIFACT_NAME=${ARTIFACT_NAME}"
         echo "::set-env name=ARTIFACT_NAME::${ARTIFACT_NAME}"
               
