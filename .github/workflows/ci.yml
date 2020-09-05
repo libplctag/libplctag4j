@@ -33,14 +33,15 @@ jobs:
         ls ${{ github.workspace }}/build/libs/libplctag4j-*.jar | tail -n 1
         echo "basename"
         export FULL_NAME=`ls ${{ github.workspace }}/build/libs/libplctag4j-*.jar | tail -n 1`
+        echo "::set-env name=FULL_NAME::${FULL_NAME}"
         basename ${FULL_NAME}
         echo "make artifact name"
-        export ARTIFACT_NAME=`basename ${FULL_NAME}`
+        export ARTIFACT_NAME=`basename -s ${FULL_NAME}`
         echo "ARTIFACT_NAME=${ARTIFACT_NAME}"
         echo "::set-env name=ARTIFACT_NAME::${ARTIFACT_NAME}"
               
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.ARTIFACT_NAME }}
-        path: ${{ github.workspace }}/build/libs/libplctag4j-*.jar
+        name: ${{ env.ARTIFACT_NAME }}.zip
+        path: ${{ env.FULL_NAME }}
