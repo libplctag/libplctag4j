@@ -46,20 +46,6 @@ public class Tag {
     public static final NativeLibrary JNA_NATIVE_LIB = NativeLibrary.getInstance(Tag.JNA_LIBRARY_NAME);
 
     static {
-/*    	try {
-    		NativeLoader.loadLibrary(Tag.JNA_LIBRARY_NAME);
-
-    		Native.register(Tag.JNA_LIBRARY_NAME);
-            if(!Tag.checkLibraryVersion(2, 1, 16)) {
-                System.err.println("Library must be compatible with version 2.1.16!");
-                System.exit(Tag.PLCTAG_ERR_UNSUPPORTED);
-            }
-    	} catch(IOException ioException) {
-    		System.err.println("Unable to load native library!");
-    		System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
-    	}
-*/    	
-
         /* DEBUG - output the Java system path */
         String property = System.getProperty("java.library.path");
         StringTokenizer parser = new StringTokenizer(property, ":");
