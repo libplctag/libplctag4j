@@ -55,6 +55,9 @@ dependencies {
 	
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
+
+    // use the libplctag4j jar when testing.
+    testCompile fileTree(dir: 'build/libs', include: ['*.jar'])
 }
 
 jar {
