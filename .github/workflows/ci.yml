@@ -24,8 +24,15 @@ jobs:
               
     - name: Test Release JAR
       run: gradle test --stacktrace --info
+
+    - name: Get artifact name
+      run: |
+        export ARTIFACT_NAME=`basename build/libs/libplctag-*.jar`
+        echo "ARTIFACT_NAME=${ARTIFACT_NAME}"
+        echo "::set-env name=ARTIFACT_NAME::${ARTIFACT_NAME}"
               
-    - name: Upload JAR
+    - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
+        name: ${{ env.ARTIFACT_NAME }}
         path: ${{ github.workspace }}/build/libs/libplctag4j-*.jar
