@@ -34,16 +34,17 @@
 
 package org.libplctag;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-import org.scijava.nativelib.NativeLoader;
-
-import com.sun.jna.*;
+import com.sun.jna.Callback;
+import com.sun.jna.Native;
+import com.sun.jna.NativeLibrary;
 
 public class Tag {
     public static final String JNA_LIBRARY_NAME = "plctag";
-    public static NativeLibrary JNA_NATIVE_LIB = null;
+    private static NativeLibrary nativeLib = null;
 
     static {
         /* DEBUG - output the Java system path */
@@ -54,32 +55,35 @@ public class Tag {
             System.err.println("Path search segment: " + parser.nextToken());
         }
 
-    	try {
-            // try to load the library from the system first.
-            System.loadLibrary(Tag.JNA_LIBRARY_NAME);
-            JNA_NATIVE_LIB = NativeLibrary.getInstance(Tag.JNA_LIBRARY_NAME);
-            System.err.println("Found library in system path.");
-        } catch (UnsatisfiedLinkError e) {
-            System.err.println("Did not find library in system path.   Trying included library in JAR.");
+        try {
+            nativeLib = NativeLibrary.getInstance(Tag.JNA_LIBRARY_NAME);
+            System.err.println("Found library in system path!");
+        } catch(UnsatisfiedLinkError e1) {
+            System.err.println("Unable to find library in system, will try DLL.");
 
-            // Try to find the library in the JAR file
             try {
-                NativeLoader.loadLibrary(Tag.JNA_LIBRARY_NAME); 
-                System.err.println("Found library in JAR.");
-                JNA_NATIVE_LIB = NativeLibrary.getInstance(Tag.JNA_LIBRARY_NAME);
-            } catch (IOException e1) {
-                System.err.println("Could not find usable library in system path or in DLL!");
-                e1.printStackTrace();
+                // try to extract the library from the DLL.
+                File libFile = Native.extractFromResourcePath(Tag.JNA_LIBRARY_NAME, Tag.class.getClassLoader());
+
+                try {
+                    nativeLib = NativeLibrary.getInstance(libFile.getAbsolutePath());
+                    System.err.println("Loaded library from native DLL in \"" + libFile.getAbsolutePath() + "\".");
+                } catch(UnsatisfiedLinkError e3) {
+                    System.err.println("Unable to load native DLL from path \"" + libFile.getAbsolutePath() + "\"!");
+                    System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
+                }
+            } catch(IOException e2) {
+                System.err.println("Unable to extract library \"" + Tag.JNA_LIBRARY_NAME + "\" from JAR!");
                 System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
             }
         }
 
         // we found the library, try to set it up for JNA
         try {
+            // map all native in this class to the library.
             Native.register(Tag.JNA_LIBRARY_NAME);
-        } catch(Exception e2) {
-            System.err.println("Unable to find native library!");
-            e2.printStackTrace();
+        } catch(Exception e4) {
+            e4.printStackTrace();
             System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
         }
     }
