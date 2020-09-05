@@ -27,7 +27,7 @@ jobs:
 
     - name: Get artifact name
       run: |
-        export ARTIFACT_NAME=`ls build/libs/libplctag-*.jar | tail -1 | basename`
+        export ARTIFACT_NAME=`ls ${{ github.workspace }}/build/libs/libplctag-*.jar | tail -1 | basename`
         echo "ARTIFACT_NAME=${ARTIFACT_NAME}"
         echo "::set-env name=ARTIFACT_NAME::${ARTIFACT_NAME}"
               
