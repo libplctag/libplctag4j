@@ -36,7 +36,7 @@ jobs:
         echo "::set-env name=FULL_NAME::${FULL_NAME}"
         basename ${FULL_NAME}
         echo "make artifact name"
-        export ARTIFACT_NAME=`basename -s ${FULL_NAME}`
+        export ARTIFACT_NAME=`basename -s ${FULL_NAME} .jar`
         echo "ARTIFACT_NAME=${ARTIFACT_NAME}"
         echo "::set-env name=ARTIFACT_NAME::${ARTIFACT_NAME}"
               
