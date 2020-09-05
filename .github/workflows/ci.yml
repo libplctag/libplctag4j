@@ -23,7 +23,7 @@ jobs:
       run: gradle clean jar
               
     - name: Test Release JAR
-      run: gradle test --stacktrace
+      run: gradle test --stacktrace --info
               
     - name: Upload JAR
       uses: actions/upload-artifact@v2
