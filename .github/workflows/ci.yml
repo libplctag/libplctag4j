@@ -19,7 +19,7 @@ jobs:
       with:
         java-version: 1.8
     - name: Unit tests
-      run: gradle test --stacktrace
+      run: gradle test --stacktrace --debug
 
   build:
     name: Generate JAR
