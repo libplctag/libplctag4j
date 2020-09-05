@@ -28,5 +28,4 @@ jobs:
     - name: Upload JAR
       uses: actions/upload-artifact@v2
       with:
-        name: JAR
         path: ${{ github.workspace }}/build/libs/libplctag4j-*.jar
