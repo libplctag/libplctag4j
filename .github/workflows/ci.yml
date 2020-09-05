@@ -19,7 +19,7 @@ jobs:
       with:
         java-version: 1.8
     - name: Unit tests
-      run: ./gradlew test --stacktrace
+      run: gradle test --stacktrace
 
   build:
     name: Generate JAR
@@ -32,7 +32,7 @@ jobs:
       with:
         java-version: 1.8
     - name: Build Release JAR
-      run: ./gradlew build test --stacktrace
+      run: gradle build test --stacktrace
               
     - name: Upload JAR
       uses: actions/upload-artifact@v2
