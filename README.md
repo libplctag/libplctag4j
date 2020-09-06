@@ -71,4 +71,4 @@ This library is not quite where it should be for a full 1.0 release.  The core f
   - [ ] tag_rw clone.
   - [ ] Tag listing.
   - [ ] Callbacks.
-- [ ] Documentation.
+- [x] Documentation.
