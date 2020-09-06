@@ -50,7 +50,7 @@ jobs:
         path: ${{ github.workspace }}/build/docs
 
   macos-test:
-    name: Generate artifacts
+    name: macOS Test
     runs-on: macos-latest
 
     steps:
@@ -67,7 +67,7 @@ jobs:
       run: gradle test --stacktrace --info
 
   windows-test:
-    name: Generate artifacts
+    name: Windows Test
     runs-on: windows-latest
 
     steps:
