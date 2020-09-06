@@ -36,6 +36,7 @@ package libplctag.java;
 import org.libplctag.Tag;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -44,6 +45,9 @@ public class TagTest {
     static int lastState = -1;
 	
     @Test public void testTag() {
+        // check the library version.
+        assertTrue("Library does not support required version!", Tag.checkLibraryVersion(2, 1, 16));
+
         // set the debug level.
         Tag.setDebugLevel(Tag.PLCTAG_DEBUG_DETAIL);
        
