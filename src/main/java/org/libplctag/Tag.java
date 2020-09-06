@@ -50,16 +50,16 @@ public class Tag {
         /* DEBUG - output the Java system path */
         String property = System.getProperty("java.library.path");
         StringTokenizer parser = new StringTokenizer(property, ":");
-        
-        while (parser.hasMoreTokens()) {
-            System.err.println("Path search segment: " + parser.nextToken());
-        }
+
+        // while (parser.hasMoreTokens()) {
+        //     System.err.println("Path search segment: " + parser.nextToken());
+        // }
 
         try {
             nativeLib = NativeLibrary.getInstance(Tag.JNA_LIBRARY_NAME);
-            System.err.println("Found library in system path!");
+            // System.err.println("Found library in system path!");
         } catch(UnsatisfiedLinkError e1) {
-            System.err.println("Unable to find library in system, will try DLL.");
+            // System.err.println("Unable to find library in system, will try DLL.");
 
             try {
                 // try to extract the library from the DLL.
@@ -67,13 +67,13 @@ public class Tag {
 
                 try {
                     nativeLib = NativeLibrary.getInstance(libFile.getAbsolutePath());
-                    System.err.println("Loaded library from native DLL in \"" + libFile.getAbsolutePath() + "\".");
+                    // System.err.println("Loaded library from native DLL in \"" + libFile.getAbsolutePath() + "\".");
                 } catch(UnsatisfiedLinkError e3) {
-                    System.err.println("Unable to load native DLL from path \"" + libFile.getAbsolutePath() + "\"!");
+                    // System.err.println("Unable to load native DLL from path \"" + libFile.getAbsolutePath() + "\"!");
                     System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
                 }
             } catch(IOException e2) {
-                System.err.println("Unable to extract library \"" + Tag.JNA_LIBRARY_NAME + "\" from JAR!");
+                // System.err.println("Unable to extract library \"" + Tag.JNA_LIBRARY_NAME + "\" from JAR!");
                 System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
             }
         }
@@ -87,7 +87,7 @@ public class Tag {
             System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
         }
     }
-    
+
     // error codes
     public static final int PLCTAG_STATUS_PENDING      = (1);
     public static final int PLCTAG_STATUS_OK           = (0);
@@ -131,9 +131,9 @@ public class Tag {
     public static final int PLCTAG_ERR_WRITE           = (-37);
     public static final int PLCTAG_ERR_PARTIAL         = (-38);
     public static final int PLCTAG_ERR_BUSY            = (-39);
-  
 
-    
+
+
     /**
      * Create a new tag based on the passed attributed string.  The attributes
      * are protocol-specific.  The only required part of the string is the key-
@@ -150,13 +150,13 @@ public class Tag {
      * the operation was a success.  If the value is less than zero then the
      * tag was not created and the failure error is one of the PLCTAG_ERR_xyz
      * errors.
-     * 
+     *
      * @param attributes - the tag attributes in a string.
      * @param timeout - the number of milliseconds to wait for the tag to be created.  If
      *     this value is zero, then the function will return immediately and the application
      *     must call status() to wait for the tag to complete.
      */
-    
+
     public Tag(String attributes, int timeout) {
     	tag_id = Tag.plc_tag_create(attributes, timeout);
     }
@@ -165,12 +165,12 @@ public class Tag {
 
 
     /**
-     * Close the tag.  
-     * 
-     * This provides programatic control over the resources uses in the native library.  Note that 
+     * Close the tag.
+     *
+     * This provides programatic control over the resources uses in the native library.  Note that
      * @return a status code of the operation.
      */
-    
+
     public int close() {
         int rc = Tag.PLCTAG_ERR_NULL_PTR;
 
@@ -189,7 +189,7 @@ public class Tag {
 
     /**
      * Decode the passed status code into a string.
-     * 
+     *
      * @param rc a result/status code
      * @return a String indicating the error type.
      */
@@ -284,8 +284,8 @@ public class Tag {
     public static final int PLCTAG_DEBUG_DETAIL        = (4);
     public static final int PLCTAG_DEBUG_SPEW          = (5);
 
-    private static final int PLCTAG_DEBUG_LAST         = (6);    
-    
+    private static final int PLCTAG_DEBUG_LAST         = (6);
+
     public static void setDebugLevel(int level) {
         if(level >= 0 && level < PLCTAG_DEBUG_LAST) {
             Tag.plc_tag_set_debug_level(level);
@@ -319,7 +319,7 @@ public class Tag {
 
     public static boolean checkLibraryVersion(int major_ver, int minor_ver, int patch_ver) {
     	int res = Tag.plc_tag_check_lib_version(major_ver, minor_ver, patch_ver);
-    	
+
     	if(res == Tag.PLCTAG_STATUS_OK) {
     		return true;
     	} else {
@@ -329,12 +329,12 @@ public class Tag {
 
     private static native int plc_tag_check_lib_version(int req_major, int req_minor, int req_patch);
 
-    
+
     /**
      * getLibraryIntAttribute
-     * 
-     * Get an attribute of the library as an integer.   
-     * 
+     *
+     * Get an attribute of the library as an integer.
+     *
      * @param attrib the name of the attribute to get.
      * @param default_val the value to return if the attribute is not found.
      * @return the integer value of the attribute or the default value if not found.
@@ -342,12 +342,12 @@ public class Tag {
 	public static int getLibraryIntAttribute(String attrib, int default_val) {
 		return Tag.plc_tag_get_int_attribute(0, attrib, default_val);
 	}
-	
+
     /**
      * getIntAttribute
-     * 
-     * Get an attribute of the tag as an integer.   
-     * 
+     *
+     * Get an attribute of the tag as an integer.
+     *
      * @param attrib the name of the attribute to get.
      * @param default_val the value to return if the attribute is not found.
      * @return the integer value of the attribute or the default value if not found.
@@ -356,15 +356,15 @@ public class Tag {
      public int getIntAttribute(String attrib, int default_val) {
 		return Tag.plc_tag_get_int_attribute(this.tag_id, attrib, default_val);
 	}
-    
+
     private static native int plc_tag_get_int_attribute(int tag_id, String attrib_name, int default_value);
-    
+
 
     /**
      * setLibraryIntAttribute
-     * 
-     * Set an attribute of the library as an integer.   
-     * 
+     *
+     * Set an attribute of the library as an integer.
+     *
      * @param attrib the name of the attribute to get.
      * @param new_val the new value for the attribute.
      * @return the status of the operation.   PLCTAG_STATUS_OK if all went well.  PLCTAG_ERR_UNSUPPORTED
@@ -375,12 +375,12 @@ public class Tag {
 		return Tag.plc_tag_set_int_attribute(0, attrib, new_val);
 	}
 
-    
+
     /**
      * setIntAttribute
-     * 
-     * Set an attribute of the tag as an integer.   
-     * 
+     *
+     * Set an attribute of the tag as an integer.
+     *
      * @param attrib the name of the attribute to get.
      * @param new_val the new value for the attribute.
      * @return the status of the operation.   PLCTAG_STATUS_OK if all went well.  PLCTAG_ERR_UNSUPPORTED
@@ -396,9 +396,9 @@ public class Tag {
 
     /**
      * size
-     * 
+     *
      * Get the size of the tag in bytes.   This is the size of the internal buffer for the tag.
-     * 
+     *
      * @return return the size of the tag in bytes.  Will return negative values for errors.
      */
 
@@ -410,14 +410,14 @@ public class Tag {
 
 
     /* data routines */
-    
+
     /**
      * getBit
-     * 
+     *
      * Get the bit at the specified bit offset.
-     * 
+     *
      * @param bit_offset
-     * @return The bit value as 0 or 1, or an error (negative) if there was a problem.  
+     * @return The bit value as 0 or 1, or an error (negative) if there was a problem.
      */
 
     public int getBit(int bit_offset) {
@@ -425,31 +425,31 @@ public class Tag {
     }
 
     private static native int plc_tag_get_bit(int tag_id, int offset_bit);
-    
+
 
     /**
      * setBit
-     * 
+     *
      * set the bit at the specified bit offset to the passed value.
-     * 
-     * @param bit_offset - the bit within the bytes of the tag.  
+     *
+     * @param bit_offset - the bit within the bytes of the tag.
      * @param new_val if new_val is zero then the bit will be set to zero, otherwise the bit will
      *     be set to one.
-     * @return PLCTAG_STATUS_OK or an error (negative) if there was a problem.  
+     * @return PLCTAG_STATUS_OK or an error (negative) if there was a problem.
      */
 
     public int setBit(int bit_offset, int new_val) {
     	return Tag.plc_tag_set_bit(this.tag_id, bit_offset, new_val);
     }
-    
+
     private static native int plc_tag_set_bit(int tag_id, int offset_bit, int val);
 
 
     /**
      * getInt64
-     * 
+     *
      * Return a signed 64-bit value from the given offset in the tag buffer.
-     * 
+     *
      * @param offset the byte offset at which to start getting the value.
      * @return INT64_MAX if there is an error otherwise the value.
      */
@@ -470,12 +470,12 @@ public class Tag {
 
     /**
      * getUInt32
-     * 
+     *
      * Return an unsigned 32-bit value from the given offset in the tag buffer.
-     * 
+     *
      * Note that Java does not have unsigned values that can be used here.   We
      * fake this by using a long and adding an offset to negative values.
-     * 
+     *
      * @param offset
      * @return UINT32_MAX if there is an error otherwise the value.
      */
@@ -657,7 +657,7 @@ public class Tag {
      * If all is successful, the function will return PLCTAG_STATUS_OK.
      */
 
- 
+
     public static final int PLCTAG_EVENT_READ_STARTED      = (1);
     public static final int PLCTAG_EVENT_READ_COMPLETED    = (2);
     public static final int PLCTAG_EVENT_WRITE_STARTED     = (3);
@@ -712,7 +712,7 @@ public class Tag {
     * This function registers the passed callback function with the _library_.  Only one callback function
     * may be registered with the library at a time!
     *
-    * Once registered, the function will be called with any logging message that is normally printed due 
+    * Once registered, the function will be called with any logging message that is normally printed due
     * to the current log level setting.
     *
     * WARNING: the callback will usually be called when the internal tag API mutex is held.   You cannot
@@ -778,7 +778,7 @@ public class Tag {
      * This should never do anything.  But, just in case close() is not
      * called first, this will catch the problem and free up the
      * tag's memory, eventually.
-     * 
+     *
      * Note that finalize() is deprecated!
      */
     protected void finalize() {
