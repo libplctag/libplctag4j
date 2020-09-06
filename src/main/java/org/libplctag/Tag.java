@@ -190,7 +190,7 @@ public class Tag {
     /**
      * Decode the passed status code into a string.
      * 
-     * @param rc
+     * @param rc a result/status code
      * @return a String indicating the error type.
      */
 
@@ -301,10 +301,10 @@ public class Tag {
     *
     * The version is passed as integers.   The three arguments are:
     *
-    * @param ver_major - the major version of the library.  This must be an exact match.
-    * @param ver_minor - the minor version of the library.   The library must have a minor
+    * @param major_ver - the major version of the library.  This must be an exact match.
+    * @param minor_ver - the minor version of the library.   The library must have a minor
     *             version greater than or equal to the requested version.
-    * @param ver_patch - the patch version of the library.   The library must have a patch
+    * @param patch_ver - the patch version of the library.   The library must have a patch
     *             version greater than or equal to the requested version if the minor
     *             version is the same as that requested.   If the library minor version
     *             is greater than that requested, any patch version will be accepted.
@@ -331,29 +331,29 @@ public class Tag {
 
     
     /**
-     * getLibraryAttribute
+     * getLibraryIntAttribute
      * 
      * Get an attribute of the library as an integer.   
      * 
      * @param attrib the name of the attribute to get.
      * @param default_val the value to return if the attribute is not found.
-     * @return the integer value of the attribute or the default value.
+     * @return the integer value of the attribute or the default value if not found.
      */
-	public static int getLibraryAttribute(String attrib, int default_val) {
+	public static int getLibraryIntAttribute(String attrib, int default_val) {
 		return Tag.plc_tag_get_int_attribute(0, attrib, default_val);
 	}
 	
     /**
-     * getAttribute
+     * getIntAttribute
      * 
      * Get an attribute of the tag as an integer.   
      * 
      * @param attrib the name of the attribute to get.
      * @param default_val the value to return if the attribute is not found.
-     * @return the integer value of the attribute or the default value.
+     * @return the integer value of the attribute or the default value if not found.
      */
 
-     public int getAttribute(String attrib, int default_val) {
+     public int getIntAttribute(String attrib, int default_val) {
 		return Tag.plc_tag_get_int_attribute(this.tag_id, attrib, default_val);
 	}
     
@@ -361,7 +361,7 @@ public class Tag {
     
 
     /**
-     * setLibraryAttribute
+     * setLibraryIntAttribute
      * 
      * Set an attribute of the library as an integer.   
      * 
@@ -371,13 +371,13 @@ public class Tag {
      *     will be returned if the attribute name is not found.
      */
 
-	public static int setLibraryAttribute(String attrib, int new_val) {
+	public static int setLibraryIntAttribute(String attrib, int new_val) {
 		return Tag.plc_tag_set_int_attribute(0, attrib, new_val);
 	}
 
     
     /**
-     * setAttribute
+     * setIntAttribute
      * 
      * Set an attribute of the tag as an integer.   
      * 
@@ -387,7 +387,7 @@ public class Tag {
      *     will be returned if the attribute name is not found.
      */
 
-	public int setAttribute(String attrib, int new_val) {
+	public int setIntAttribute(String attrib, int new_val) {
 		return Tag.plc_tag_set_int_attribute(this.tag_id, attrib, new_val);
 	}
 
@@ -438,14 +438,23 @@ public class Tag {
      * @return PLCTAG_STATUS_OK or an error (negative) if there was a problem.  
      */
 
-     public int setBit(int bit_offset, int new_val) {
+    public int setBit(int bit_offset, int new_val) {
     	return Tag.plc_tag_set_bit(this.tag_id, bit_offset, new_val);
     }
     
     private static native int plc_tag_set_bit(int tag_id, int offset_bit, int val);
 
 
-    public long getInt64(int offset) {
+    /**
+     * getInt64
+     * 
+     * Return a signed 64-bit value from the given offset in the tag buffer.
+     * 
+     * @param offset the byte offset at which to start getting the value.
+     * @return INT64_MAX if there is an error otherwise the value.
+     */
+
+     public long getInt64(int offset) {
         return Tag.plc_tag_get_int64(this.tag_id, offset);
     }
 
@@ -588,12 +597,6 @@ public class Tag {
     private static native int plc_tag_set_float32(int tag_id, int offset, float val);
 
 
-    /*
-     * PRIVATE data and routines below this point!
-     */
-
-    private int tag_id = 0;
-
 
     /**
     * shutdownLibrary
@@ -661,6 +664,7 @@ public class Tag {
     public static final int PLCTAG_EVENT_WRITE_COMPLETED   = (4);
     public static final int PLCTAG_EVENT_ABORTED           = (5);
     public static final int PLCTAG_EVENT_DESTROYED         = (6);
+
     public interface EventCallbackInterface extends Callback {
         public void invoke(int tag_id, int event, int status);
     }
@@ -702,7 +706,7 @@ public class Tag {
 
 
 
-    /*
+    /**
     * registerLogger
     *
     * This function registers the passed callback function with the _library_.  Only one callback function
@@ -763,6 +767,8 @@ public class Tag {
 
 
 
+    // The only piece of instance state.
+    private int tag_id = 0;
 
 
 
@@ -772,6 +778,8 @@ public class Tag {
      * This should never do anything.  But, just in case close() is not
      * called first, this will catch the problem and free up the
      * tag's memory, eventually.
+     * 
+     * Note that finalize() is deprecated!
      */
     protected void finalize() {
         if(tag_id > 0) {

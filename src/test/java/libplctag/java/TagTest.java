@@ -124,7 +124,7 @@ public class TagTest {
         assertEquals("Last state should be PLCTAG_EVENT_WRITE_COMPLETED!", lastState, Tag.PLCTAG_EVENT_WRITE_COMPLETED);
 
         // attempt read the DEBUG log value.
-        assertEquals("Debug value not set!", Tag.getLibraryAttribute("debug", -1), Tag.PLCTAG_DEBUG_INFO);
+        assertEquals("Debug value not set!", Tag.getLibraryIntAttribute("debug", -1), Tag.PLCTAG_DEBUG_INFO);
 
         assertEquals("Unable to unregister logging callback!", Tag.unregisterLogger(), Tag.PLCTAG_STATUS_OK);
         
