@@ -9,7 +9,7 @@ on:
 jobs:
 
   build:
-    name: Generate JAR
+    name: Generate artifacts
     runs-on: ubuntu-latest
 
     steps:
@@ -25,17 +25,14 @@ jobs:
     - name: Test Release JAR
       run: gradle test --stacktrace --info
 
+    - name: Build Javadoc
+      run: gradle javadoc
+
     - name: Get artifact name
       run: |
-        echo "full file list"
-        ls ${{ github.workspace }}/build/libs/libplctag4j-*.jar
-        echo "tail -n 1"
-        ls ${{ github.workspace }}/build/libs/libplctag4j-*.jar | tail -n 1
-        echo "basename"
         export FULL_NAME=`ls ${{ github.workspace }}/build/libs/libplctag4j-*.jar | tail -n 1`
+        echo "FULL_NAME=${FULL_NAME}"
         echo "::set-env name=FULL_NAME::${FULL_NAME}"
-        basename -s .jar ${FULL_NAME}
-        echo "make artifact name"
         export ARTIFACT_NAME=`basename -s .jar ${FULL_NAME}`
         echo "ARTIFACT_NAME=${ARTIFACT_NAME}"
         echo "::set-env name=ARTIFACT_NAME::${ARTIFACT_NAME}"
