@@ -317,7 +317,7 @@ public class Tag {
     * To match version 2.1.4, call Tag.checkLibraryVersion(2, 1, 4).
     */
 
-    static boolean checkLibraryVersion(int major_ver, int minor_ver, int patch_ver) {
+    public static boolean checkLibraryVersion(int major_ver, int minor_ver, int patch_ver) {
     	int res = Tag.plc_tag_check_lib_version(major_ver, minor_ver, patch_ver);
     	
     	if(res == Tag.PLCTAG_STATUS_OK) {
