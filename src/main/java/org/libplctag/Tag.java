@@ -151,12 +151,10 @@ public class Tag {
      * tag was not created and the failure error is one of the PLCTAG_ERR_xyz
      * errors.
      * 
-     * @param attrib_str - the tag attributes in a string.
+     * @param attributes - the tag attributes in a string.
      * @param timeout - the number of milliseconds to wait for the tag to be created.  If
      *     this value is zero, then the function will return immediately and the application
      *     must call status() to wait for the tag to complete.
-     * 
-     * @return - a Tag instance.   If the tag creation fails, the status may be an error.
      */
     
     public Tag(String attributes, int timeout) {
@@ -165,6 +163,13 @@ public class Tag {
 
     private static native int plc_tag_create(String attrib_str, int timeout);
 
+
+    /**
+     * Close the tag.  
+     * 
+     * This provides programatic control over the resources uses in the native library.  Note that 
+     * @return a status code of the operation.
+     */
     
     public int close() {
         int rc = Tag.PLCTAG_ERR_NULL_PTR;
@@ -411,7 +416,7 @@ public class Tag {
      * 
      * Get the bit at the specified bit offset.
      * 
-     * @param offset_bit
+     * @param bit_offset
      * @return The bit value as 0 or 1, or an error (negative) if there was a problem.  
      */
 
@@ -427,7 +432,7 @@ public class Tag {
      * 
      * set the bit at the specified bit offset to the passed value.
      * 
-     * @param offset_bit
+     * @param bit_offset - the bit within the bytes of the tag.  
      * @param new_val if new_val is zero then the bit will be set to zero, otherwise the bit will
      *     be set to one.
      * @return PLCTAG_STATUS_OK or an error (negative) if there was a problem.  
@@ -436,7 +441,7 @@ public class Tag {
      public int setBit(int bit_offset, int new_val) {
     	return Tag.plc_tag_set_bit(this.tag_id, bit_offset, new_val);
     }
-
+    
     private static native int plc_tag_set_bit(int tag_id, int offset_bit, int val);
 
 

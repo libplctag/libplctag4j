@@ -40,8 +40,14 @@ jobs:
         echo "ARTIFACT_NAME=${ARTIFACT_NAME}"
         echo "::set-env name=ARTIFACT_NAME::${ARTIFACT_NAME}"
               
-    - name: Upload artifact
+    - name: Upload JAR
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.ARTIFACT_NAME }}.zip
         path: ${{ env.FULL_NAME }}
+
+    - name: Upload docs
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.ARTIFACT_NAME }}.zip
+        path: ${{ github.workspace }}/build/docs
