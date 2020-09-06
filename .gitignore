@@ -15,3 +15,6 @@ gradlew.bat
 
 # logs produced by gradle
 log
+
+# vscode
+.vscode/*
