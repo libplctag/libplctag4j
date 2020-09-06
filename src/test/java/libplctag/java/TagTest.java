@@ -46,7 +46,7 @@ public class TagTest {
 	
     @Test public void testTag() {
         // check the library version.
-        assertTrue("Library does not support required version!", Tag.checkLibraryVersion(2, 1, 16));
+        assertTrue("Library does not support the required version of 2.1.16!", Tag.checkLibraryVersion(2, 1, 16));
 
         // set the debug level.
         Tag.setDebugLevel(Tag.PLCTAG_DEBUG_DETAIL);
