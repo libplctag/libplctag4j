@@ -70,11 +70,13 @@ public class Tag {
                     // System.err.println("Loaded library from native DLL in \"" + libFile.getAbsolutePath() + "\".");
                 } catch(UnsatisfiedLinkError e3) {
                     // System.err.println("Unable to load native DLL from path \"" + libFile.getAbsolutePath() + "\"!");
-                    System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
+                    // System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
+                    throw e3;
                 }
             } catch(IOException e2) {
                 // System.err.println("Unable to extract library \"" + Tag.JNA_LIBRARY_NAME + "\" from JAR!");
-                System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
+                //System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
+                throw new RuntimeException("Unable to extract library \"" + Tag.JNA_LIBRARY_NAME + "\" from JAR!");
             }
         }
 
@@ -84,7 +86,8 @@ public class Tag {
             Native.register(Tag.JNA_LIBRARY_NAME);
         } catch(Exception e4) {
             e4.printStackTrace();
-            System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
+            //System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
+            throw e4;
         }
     }
 
