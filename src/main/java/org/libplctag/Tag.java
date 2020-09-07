@@ -76,8 +76,8 @@ public class Tag {
             } catch(IOException e2) {
                 // System.err.println("Unable to extract library \"" + Tag.JNA_LIBRARY_NAME + "\" from JAR!");
                 //System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
-                System.err.println("Unable to extract library, got IOException: " + e2.getMessage());
-                e2.printStackTrace();
+                //System.err.println("Unable to extract library, got IOException: " + e2.getMessage());
+                //e2.printStackTrace();
                 throw new RuntimeException("Unable to extract library \"" + Tag.JNA_LIBRARY_NAME + "\" from JAR!");
             }
         }
