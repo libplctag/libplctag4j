@@ -13,3 +13,8 @@ gradle/*
 gradlew
 gradlew.bat
 
+# remove all VSCode stuff.
+.vscode/*
+
+# random debugging files.
+log
