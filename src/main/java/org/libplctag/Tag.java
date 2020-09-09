@@ -41,6 +41,7 @@ import java.io.IOException;
 import com.sun.jna.Callback;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
+import com.sun.jna.Platform;
 
 public class Tag {
     public static final String JNA_LIBRARY_NAME = "plctag";
@@ -48,7 +49,7 @@ public class Tag {
 
     static {
         /* DEBUG - output the Java system path */
-        String property = System.getProperty("java.library.path");
+        // String property = System.getProperty("java.library.path");
         //StringTokenizer parser = new StringTokenizer(property, ":");
 
         // while (parser.hasMoreTokens()) {
@@ -78,14 +79,14 @@ public class Tag {
                 //System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
                 //System.err.println("Unable to extract library, got IOException: " + e2.getMessage());
                 //e2.printStackTrace();
-                throw new RuntimeException("Unable to extract library \"" + Tag.JNA_LIBRARY_NAME + "\" from JAR!");
+                throw new RuntimeException("Unable to extract library \"" + Tag.JNA_LIBRARY_NAME + "\" for OS " + System.getProperty("os.arch") + " and architecture " + Platform.ARCH.toString() + " from JAR!");
             }
         }
 
         // we found the library, try to set it up for JNA
         try {
-            // map all native in this class to the library.
-            Native.register(Tag.JNA_LIBRARY_NAME);
+            // map all native methods in this class to the library.
+            Native.register(Tag.class, Tag.JNA_LIBRARY_NAME);
         } catch(Exception e4) {
             e4.printStackTrace();
             //System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
@@ -163,6 +164,7 @@ public class Tag {
      */
 
     public Tag(String attributes, int timeout) {
+        super();
     	tag_id = Tag.plc_tag_create(attributes, timeout);
     }
 
