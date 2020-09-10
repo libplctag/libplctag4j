@@ -40,13 +40,13 @@ jobs:
     - name: Upload JAR
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.ARTIFACT_NAME }}.zip
+        name: ${{ env.ARTIFACT_NAME }}
         path: ${{ env.FULL_NAME }}
 
     - name: Upload docs
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.ARTIFACT_NAME }}.zip
+        name: ${{ env.ARTIFACT_NAME }}
         path: ${{ github.workspace }}/build/docs
 
   macos-test:
