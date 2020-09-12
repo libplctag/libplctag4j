@@ -92,6 +92,10 @@ public class Tag {
             //System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
             throw e4;
         }
+
+        if(!Tag.checkLibraryVersion(2, 1, 16)) {
+            throw new RuntimeException("Unable to load required library version, 2.1.16, or later!");
+        }
     }
 
     // error codes
