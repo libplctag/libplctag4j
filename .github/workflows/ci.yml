@@ -72,17 +72,14 @@ jobs:
         if [ -e ${{ env.FULL_NAME }} ]; then echo "Found it!"; else echo "Not found!"; fi
 
     - name: Upload JAR to Bintray
-      uses: bpicode/github-action-upload-bintray@master
+      uses: hpcsc/upload-bintray-docker-action@v1
       with:
-        file: ${{ env.FULL_NAME }}
-        api_user: kyle-github
-        api_key: ${{ secrets.BINTRAY_API_KEY }}
-        repository_user: kyle-github
         repository: libplctag4j
         package: org.libplctag4j
         version: ${{ env.VERSION }}
-        publish: 1
-        calculate_metadata: true
+        sourcePath: ./build/libs/libplctag4j-*.jar
+        username: kyle-github
+        apiKey: ${{secrets.BINTRAY_API_KEY}}
 
   macos-test:
     name: macOS Test
