@@ -68,7 +68,7 @@ jobs:
 
     - name: Show artifact name
       run: |
-        ls ${{ env.FULL_NAME }}
+        ls ${{ github.workspace }}/build/libs
 
     - name: Upload JAR to Bintray
       uses: bpicode/github-action-upload-bintray@master
