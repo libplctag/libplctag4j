@@ -70,13 +70,13 @@ jobs:
       with:
         file: [ "${{ env.FULL_NAME }}", "${{ env.FULL_NAME_MIN }}" ]
         api_user: kyle-github
-        api_key: ${{ secrets.BINTRAY_API_KEY }} # An API key can be obtained from the user profile page.
+        api_key: ${{ secrets.BINTRAY_API_KEY }}
         repository_user: kyle-github
         repository: libplctag4j
         package: org.libplctag4j
         version: ${{ env.VERSION }}
         publish: 1
-        calculate_metadata: true # Schedule metadata calculation after upload
+        calculate_metadata: true
 
   macos-test:
     name: macOS Test
