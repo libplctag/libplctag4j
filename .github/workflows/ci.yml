@@ -78,7 +78,7 @@ jobs:
         package: org.libplctag4j
         version: ${{ env.VERSION }}
         sourcePath: ./build/libs/libplctag4j-*.jar
-        username: kyle-github
+        username: libplctag
         apiKey: ${{secrets.BINTRAY_API_KEY}}
 
   macos-test:
