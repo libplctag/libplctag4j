@@ -36,18 +36,47 @@ jobs:
         export ARTIFACT_NAME=`basename -s .jar ${FULL_NAME}`
         echo "ARTIFACT_NAME=${ARTIFACT_NAME}"
         echo "::set-env name=ARTIFACT_NAME::${ARTIFACT_NAME}"
+        PARTS=($(echo "$ARTIFACT_NAME" | tr '-' "\n"))
+        export VERSION="${PARTS[1]}-${PARTS[2]}"
+        echo "VERSION=${VERSION}"
+        echo "::set-env name=VERSION::${VERSION}"
+        export FULL_NAME_MIN=`ls ${{ github.workspace }}/build/libs/libplctag4j_min-*.jar | tail -n 1`
+        echo "FULL_NAME_MIN=${FULL_NAME_MIN}"
+        echo "::set-env name=FULL_NAME_MIN::${FULL_NAME_MIN}"
+        export ARTIFACT_NAME_MIN=`basename -s .jar ${FULL_NAME_MIN}`
+        echo "ARTIFACT_NAME_MIN=${ARTIFACT_NAME_MIN}"
+        echo "::set-env name=ARTIFACT_NAME_MIN::${ARTIFACT_NAME_MIN}"
 
-    - name: Upload JAR
+    - name: Upload full JAR to GitHub
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ env.FULL_NAME }}
 
-    - name: Upload docs
+    - name: Upload minimal JAR to GitHub
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ env.FULL_NAME_MIN }}
+
+    - name: Upload docs to GitHub
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ github.workspace }}/build/docs
+
+    - name: Upload JAR to Bintray
+      uses: bpicode/github-action-upload-bintray@master
+      with:
+        file: [ "${{ env.FULL_NAME }}", "${{ env.FULL_NAME_MIN }}" ]
+        api_user: kyle-github
+        api_key: ${{ secrets.BINTRAY_API_KEY }} # An API key can be obtained from the user profile page.
+        repository_user: kyle-github
+        repository: libplctag4j
+        package: org.libplctag4j
+        version: ${{ env.VERSION }}
+        publish: 1
+        calculate_metadata: true # Schedule metadata calculation after upload
 
   macos-test:
     name: macOS Test
