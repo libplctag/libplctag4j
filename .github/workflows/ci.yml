@@ -59,9 +59,9 @@ jobs:
     - name: Test Release JAR
       run: gradle test --stacktrace --info
 
-  generate-artifacts:
+  upload-artifacts:
     needs: [ ubuntu-test, windows-test, macos-test ]
-    name: Generate artifacts
+    name: Upload artifacts
     runs-on: ubuntu-latest
 
     steps:
