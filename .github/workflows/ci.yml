@@ -20,7 +20,7 @@ jobs:
         java-version: 1.8
 
     - name: Build Release JAR
-      run: gradle clean jar
+      run: gradle clean jar minJar
 
     - name: Test Release JAR
       run: gradle test --stacktrace --info
