@@ -42,7 +42,7 @@ library, its use, or about one of the wrapper libraries, please join the Google 
 
 The forum is open to all, but is by request only to keep the spammers down.  The traffic is fairly
 light with usually a small number of emails per month.  It is our primary means for users to
-ask questions and for discussions to happen.   Announcements about released happen on the forum.
+ask questions and for discussions to happen.   Announcements about releases happen on the forum.
 
 ### GitHub
 
