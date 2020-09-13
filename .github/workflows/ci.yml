@@ -69,7 +69,7 @@ jobs:
     - name: Show artifact name
       run: |
         ls ${{ github.workspace }}/build/libs
-        if [ -e ${{ env.FULL_NAME }} ]; then echo "Found it!"; else echo "Not found!" fi
+        if [ -e ${{ env.FULL_NAME }} ]; then echo "Found it!"; else echo "Not found!"; fi
 
     - name: Upload JAR to Bintray
       uses: bpicode/github-action-upload-bintray@master
