@@ -68,7 +68,7 @@ jobs:
     - name: Upload JAR to Bintray
       uses: bpicode/github-action-upload-bintray@master
       with:
-        file: [ "${{ env.FULL_NAME }}", "${{ env.FULL_NAME_MIN }}" ]
+        file: ${{ env.FULL_NAME }}
         api_user: kyle-github
         api_key: ${{ secrets.BINTRAY_API_KEY }}
         repository_user: kyle-github
