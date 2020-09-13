@@ -2,9 +2,9 @@ name: libplctag4j CI
 
 on:
   push:
-    branches: [ release, prerelease ]
+    branches: [ release, prerelease, android_aar ]
   pull_request:
-    branches: [ release, prerelease ]
+    branches: [ release, prerelease, android-aar ]
 
 jobs:
 
