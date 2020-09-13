@@ -30,7 +30,7 @@ jobs:
 
     - name: Get artifact name
       run: |
-        ls "${{ github.workspace }}/build/libs/*"
+        ls ${{ github.workspace }}/build/libs/libplctag4j*
         export FULL_NAME=`ls ${{ github.workspace }}/build/libs/libplctag4j-*.jar | tail -n 1`
         echo "FULL_NAME=${FULL_NAME}"
         echo "::set-env name=FULL_NAME::${FULL_NAME}"
