@@ -74,7 +74,7 @@ jobs:
     - name: Upload JAR to Bintray
       uses: hpcsc/upload-bintray-docker-action@v1
       with:
-        repository: libplctag
+        repository: libplctag4j
         package: libplctag4j
         version: ${{ env.VERSION }}
         sourcePath: ./build/libs/libplctag4j-*.jar
