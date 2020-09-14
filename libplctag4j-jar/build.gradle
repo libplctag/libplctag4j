@@ -86,13 +86,14 @@ jar {
         }
     }
 
-    archivesBaseName="libplctag4j-${project.version}"
+    archivesBaseName="libplctag4j"
+    archiveVersion=findProperty("libplctag4jVersion") + "-" + findProperty("libplctagVersion")
 }
 
 
 task minJar(type: Jar, name: "${project.name}_min") {
-    baseName = "${project.name}_min"
-    version = project.version
+    archiveBaseName = "libplctag4j_min"
+    archiveVersion = findProperty("libplctag4jVersion") + "-" + findProperty("libplctagVersion")
     String rootClass = 'org.libplctag.Tag'
     String className = 'Tag'
 
@@ -112,8 +113,8 @@ task minJar(type: Jar, name: "${project.name}_min") {
 }
 
 task maxJar(type: Jar, name: "${project.name}_max") {
-    baseName = "${project.name}_max"
-    version = project.version
+    archiveBaseName = "libplctag4j_min"
+    archiveVersion = findProperty("libplctag4jVersion") + "-" + findProperty("libplctagVersion")
     String rootClass = 'org.libplctag.Tag'
     String className = 'Tag'
 
