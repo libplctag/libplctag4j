@@ -20,7 +20,7 @@ jobs:
         java-version: 1.8
 
     - name: Build Release JAR
-      run: gradle clean libplctag4j-jar:jar
+      run: gradle libplctag4j-jar:jar
 
     - name: Test Release JAR
       run: gradle libplctag4j-jar:test --stacktrace --info
@@ -37,10 +37,10 @@ jobs:
         java-version: 1.8
 
     - name: Build Release JAR
-      run: gradle clean jar
+      run: gradle libplctag4j-jar:jar
 
     - name: Test Release JAR
-      run: gradle test --stacktrace --info
+      run: gradle libplctag4j-jar:test --stacktrace --info
 
   windows-test:
     name: Windows Test
@@ -54,10 +54,10 @@ jobs:
         java-version: 1.8
 
     - name: Build Release JAR
-      run: gradle clean jar
+      run: gradle libplctag4j-jar:jar
 
     - name: Test Release JAR
-      run: gradle test --stacktrace --info
+      run: gradle libplctag4j-jar:test --stacktrace --info
 
   generate-artifacts:
     needs: [ ubuntu-test, windows-test, macos-test ]
