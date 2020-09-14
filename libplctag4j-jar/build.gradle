@@ -61,15 +61,15 @@ jar {
     }
 
     // get the licenses.
-	from{
+	from {
         ["LICENSE-2.LGPL","LICENSE-1.MPL"]
     }
 
-    // manifest {
-    //     attributes "Implementation-Title": "Tag",
-    //                "Implementation-Version": "${project.version}",
-    //                "Main-Class": "org.libplctag.Tag"
-    // }
+    manifest {
+        attributes "Implementation-Title": "Tag",
+                   "Implementation-Version": "${project.libplctag4jProjectVersion}",
+                   "Main-Class": "org.libplctag.Tag"
+    }
 
     // out of tree source because it is shared between two projects.
     sourceSets {
@@ -87,15 +87,27 @@ jar {
     }
 
     archivesBaseName="libplctag4j"
-    archiveVersion=findProperty("libplctag4jVersion") + "-" + findProperty("libplctagVersion")
+    archiveVersion="${project.libplctag4jProjectVersion}-${project.libplctagProjectVersion}"
 }
 
 
-task minJar(type: Jar, name: "${project.name}_min") {
+task minJar(type: Jar, name: "libplctag4j_minJar") {
+    String libplctag4jProjectVersion = findProperty("libplctag4jProjectVersion")
+    String libplctagProjectVersion = findProperty("libplctagProjectVersion")
+    String jarVersion = "${project.libplctag4jProjectVersion}-${project.libplctagProjectVersion}"
+
+    // throw new Exception("libplctagProjectVe" + archiveVersion + "rsion=" + project.libplctagProjectVersion + ", libplctag4jProjectVersion=" + project.libplctag4jProjectVersion)
+
     archiveBaseName = "libplctag4j_min"
-    archiveVersion = findProperty("libplctag4jVersion") + "-" + findProperty("libplctagVersion")
+    baseName = "libplctag4j_min"
+    archiveVersion = jarVersion
+    version = jarVersion
+    //setProperty("archiveVersion", "${project.libplctag4jProjectVersion}-${project.libplctagProjectVersion}")
+
     String rootClass = 'org.libplctag.Tag'
     String className = 'Tag'
+
+    //throw new Exception("jarVersion=" + jarVersion + ", archiveVersion=${archiveVersion}, archiveBaseName=" + archiveBaseName )
 
     from(sourceSets.main.output) {
         include "org/libplctag/**"
@@ -113,8 +125,19 @@ task minJar(type: Jar, name: "${project.name}_min") {
 }
 
 task maxJar(type: Jar, name: "${project.name}_max") {
+    String libplctag4jProjectVersion = findProperty("libplctag4jProjectVersion")
+    String libplctagProjectVersion = findProperty("libplctagProjectVersion")
+
+    if(libplctag4jProjectVersion == null) {
+        throw new Exception("libplctag4jProjectVersion is null!")
+    }
+
+    if(libplctagProjectVersion == null) {
+        throw new Exception("libplctagProjectVersion is null!")
+    }
+
     archiveBaseName = "libplctag4j_min"
-    archiveVersion = findProperty("libplctag4jVersion") + "-" + findProperty("libplctagVersion")
+    archiveVersion = findProperty("libplctag4jProjectVersion") + "-" + findProperty("libplctagProjectVersion")
     String rootClass = 'org.libplctag.Tag'
     String className = 'Tag'
 

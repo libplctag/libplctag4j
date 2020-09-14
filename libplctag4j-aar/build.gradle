@@ -89,7 +89,12 @@ android {
 
             // get the C library.    implementation 'net.java.dev.jna:jna:5.6.0@aar'
 
-            def libplctagRelease = "v" + findProperty("libplctagVersion")
+            def libplctagRelease = "v${project.libplctagProjectVersion}"
+
+            println("***libplctag release version: ${project.libplctagProjectVersion}")
+
+            //libplctagRelease="v2.1.18"
+            //libplctagRelease="prerelease"
 
             org.ajoberstar.grgit.Grgit.clone(dir: libplctagFolderPath, uri: "https://github.com/libplctag/libplctag", refToCheckout: libplctagRelease )
         } else {
