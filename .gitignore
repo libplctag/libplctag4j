@@ -21,3 +21,4 @@ log
 
 # Android remnants.
 libplctag4j-aar/.cxx/*
+external_src/*
