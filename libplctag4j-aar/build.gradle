@@ -45,7 +45,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        //android.ndkVersion  findProperty("android.ndkVersion")
+        android.ndkVersion  "${project.android.ndkVersion}""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
