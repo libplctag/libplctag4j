@@ -8,8 +8,8 @@ on:
 
 jobs:
 
-  ubuntu:
-    name: Generate artifacts
+  ubuntu-test:
+    name: Ubuntu Test
     runs-on: ubuntu-latest
 
     steps:
@@ -24,30 +24,6 @@ jobs:
 
     - name: Test Release JAR
       run: gradle libplctag4j-jar:test --stacktrace --info
-
-    - name: Build Javadoc
-      run: gradle libplctag4j-jar:javadoc
-
-    - name: Get artifact name
-      run: |
-        export FULL_NAME=`ls ${{ github.workspace }}/libplctag4j-jar/build/libs/libplctag4j-*.jar | tail -n 1`
-        echo "FULL_NAME=${FULL_NAME}"
-        echo "::set-env name=FULL_NAME::${FULL_NAME}"
-        export ARTIFACT_NAME=`basename -s .jar ${FULL_NAME}`
-        echo "ARTIFACT_NAME=${ARTIFACT_NAME}"
-        echo "::set-env name=ARTIFACT_NAME::${ARTIFACT_NAME}"
-
-    - name: Upload JAR
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ env.ARTIFACT_NAME }}
-        path: ${{ env.FULL_NAME }}
-
-    - name: Upload docs
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ env.ARTIFACT_NAME }}
-        path: ${{ github.workspace }}/build/docs
 
   macos-test:
     name: macOS Test
@@ -83,3 +59,80 @@ jobs:
     - name: Test Release JAR
       run: gradle test --stacktrace --info
 
+  generate-artifacts:
+    needs: [ ubuntu-test, windows-test, macos-test ]
+    name: Generate artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+
+    - name: Build Release JARs
+      run: gradle clean libplctag4j-jar:jar libplctag4j-jar:minJar
+
+    - name: Build Javadoc
+      run: gradle libplctag4j-jar:javadoc
+
+    - name: Get artifact name
+      run: |
+        ls ${{ github.workspace }}/libplctag4j-jarbuild/libs/libplctag4j*
+        export FULL_NAME=`ls ${{ github.workspace }}/libplctag4j-jar/build/libs/libplctag4j-*.jar | tail -n 1`
+        echo "FULL_NAME=${FULL_NAME}"
+        echo "::set-env name=FULL_NAME::${FULL_NAME}"
+        export ARTIFACT_NAME=`basename -s .jar ${FULL_NAME}`
+        echo "ARTIFACT_NAME=${ARTIFACT_NAME}"
+        echo "::set-env name=ARTIFACT_NAME::${ARTIFACT_NAME}"
+        PARTS=($(echo "$ARTIFACT_NAME" | tr '-' "\n"))
+        export VERSION="${PARTS[1]}-${PARTS[2]}"
+        echo "VERSION=${VERSION}"
+        echo "::set-env name=VERSION::${VERSION}"
+        export FULL_NAME_MIN=`ls ${{ github.workspace }}/libplctag4j-jar/build/libs/libplctag4j_min-*.jar | tail -n 1`
+        echo "FULL_NAME_MIN=${FULL_NAME_MIN}"
+        echo "::set-env name=FULL_NAME_MIN::${FULL_NAME_MIN}"
+        export ARTIFACT_NAME_MIN=`basename -s .jar ${FULL_NAME_MIN}`
+        echo "ARTIFACT_NAME_MIN=${ARTIFACT_NAME_MIN}"
+        echo "::set-env name=ARTIFACT_NAME_MIN::${ARTIFACT_NAME_MIN}"
+
+    - name: Upload full JAR to GitHub
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ env.FULL_NAME }}
+
+    - name: Upload minimal JAR to GitHub
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ env.FULL_NAME_MIN }}
+
+    - name: Upload docs to GitHub
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ github.workspace }}/build/docs
+
+    - name: Upload full JAR to Bintray
+      run: |
+        ls ${{ github.workspace }}/build/libs
+        if [ -e ${{ env.FULL_NAME }} ]; then
+          echo "Uploading full JAR file."
+          echo "curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/org.libplctag4j/${{ env.VERSION }}/${{ env.ARTIFACT_NAME }}.jar?publish=1&override=1"
+          curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/org.libplctag4j/${{ env.VERSION }}/${{ env.ARTIFACT_NAME }}.jar?publish=1&override=1
+        else
+          echo "Full JAR file not found!"
+        fi
+
+    - name: Upload minimal JAR to Bintray
+      run: |
+        ls ${{ github.workspace }}/build/libs
+        if [ -e ${{ env.FULL_NAME_MIN }} ]; then
+          echo "Uploading minimal JAR file."
+          echo "curl -T ${{ env.FULL_NAME_MIN }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/org.libplctag4j/${{ env.VERSION }}/${{ env.ARTIFACT_NAME_MIN }}.jar?publish=1&override=1"
+          curl -T ${{ env.FULL_NAME_MIN }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/org.libplctag4j/${{ env.VERSION }}/${{ env.ARTIFACT_NAME_MIN }}.jar?publish=1&override=1
+        else
+          echo "Minimal JAR file not found!"
+        fi
