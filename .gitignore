@@ -22,3 +22,12 @@ log
 # Android remnants.
 libplctag4j-aar/.cxx/*
 external_src/*
+external_zips/*
+
+# native libs
+libplctag4j-jar/src/main/resources/linux-x86-64
+libplctag4j-jar/src/main/resources/linux-x86
+libplctag4j-jar/src/main/resources/win32-x86-64
+libplctag4j-jar/src/main/resources/win32-x86
+libplctag4j-jar/src/main/resources/darwin
+
