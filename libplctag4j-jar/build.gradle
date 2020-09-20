@@ -88,7 +88,137 @@ jar {
 
     archivesBaseName="libplctag4j"
     archiveVersion="${project.libplctag4jProjectVersion}-${project.libplctagProjectVersion}"
+
+    // dependsOn 'getLinuxX64NativeLibrary'
+    // dependsOn 'getLinuxX86NativeLibrary'
 }
+
+processResources.dependsOn([ 'getLinuxX64NativeLibrary', 'getLinuxX86NativeLibrary', 'getWindowsX64NativeLibrary', 'getWindowsX86NativeLibrary', 'getMacOSX64NativeLibrary' ])
+
+def getNativeLibrary(String srcZipBase) {
+    def srcZipUrl = "https://github.com/libplctag/libplctag/releases/download/v${project.libplctagProjectVersion}/${srcZipBase}"
+    def zipDirBase = "${rootDir}/external_zips"
+    def zipDir = new File(zipDirBase)
+    def localZipFile = new File("${zipDirBase}/${srcZipBase}")
+    def extractDirBase = zipDirBase + "/" + srcZipBase.take(srcZipBase.lastIndexOf('.'))
+    def extractDir = new File(extractDirBase)
+
+    // if zip folder does not exist, then make the folder
+    if (!zipDir.exists()) {
+        // need to make the directory in which we will check out the ZIPs.
+        zipDir.mkdirs()
+    }
+
+    // download
+    if(!localZipFile.exists()) {
+        ant.get(src: "${srcZipUrl}", dest: zipDir)
+    }
+
+    // unzip it.
+    if(localZipFile.exists() && !extractDir.exists()) {
+        extractDir.mkdirs()
+        ant.unzip(src: localZipFile, dest: extractDir)
+    }
+
+    System.err.println("Returning extract dir base=" + extractDirBase)
+
+    return extractDirBase
+}
+
+task getLinuxX64NativeLibrary(type: Copy) {
+        def zipName = "libplctag_${project.libplctagProjectVersion}_ubuntu_x64.zip"
+        def targetFolderPath = "$rootDir/libplctag4j-jar/src/main/resources/linux-x86-64/"
+        def targetFolder = new File(targetFolderPath)
+        def extractPathBase = getNativeLibrary("${zipName}")
+        def extractFileBase = "${extractPathBase}/libplctag.so"
+        def extractFile = new File(extractFileBase)
+
+        System.err.println("extractFile=" + extractFile.path.toString())
+
+        from extractFile
+        into targetFolder
+}
+
+task getLinuxX86NativeLibrary(type: Copy) {
+        def zipName = "libplctag_${project.libplctagProjectVersion}_ubuntu_x86.zip"
+        def targetFolderPath = "$rootDir/libplctag4j-jar/src/main/resources/linux-x86/"
+        def targetFolder = new File(targetFolderPath)
+        def extractPathBase = getNativeLibrary("${zipName}")
+        def extractFileBase = "${extractPathBase}/libplctag.so"
+        def extractFile = new File(extractFileBase)
+
+        System.err.println("extractFile=" + extractFile.path.toString())
+
+        from extractFile
+        into targetFolder
+}
+
+task getWindowsX64NativeLibrary(type: Copy) {
+        def zipName = "libplctag_${project.libplctagProjectVersion}_windows_x64.zip"
+        def targetFolderPath = "$rootDir/libplctag4j-jar/src/main/resources/win32-x86-64/"
+        def targetFolder = new File(targetFolderPath)
+        def extractPathBase = getNativeLibrary("${zipName}")
+        def extractFileBase = "${extractPathBase}/Release/plctag.dll"
+        def extractFile = new File(extractFileBase)
+
+        System.err.println("extractFile=" + extractFile.path.toString())
+
+        from extractFile
+        into targetFolder
+}
+
+task getWindowsX86NativeLibrary(type: Copy) {
+        def zipName = "libplctag_${project.libplctagProjectVersion}_windows_x86.zip"
+        def targetFolderPath = "$rootDir/libplctag4j-jar/src/main/resources/win32-x86/"
+        def targetFolder = new File(targetFolderPath)
+        def extractPathBase = getNativeLibrary("${zipName}")
+        def extractFileBase = "${extractPathBase}/Release/plctag.dll"
+        def extractFile = new File(extractFileBase)
+
+        System.err.println("extractFile=" + extractFile.path.toString())
+
+        from extractFile
+        into targetFolder
+}
+
+
+task getMacOSX64NativeLibrary(type: Copy) {
+        def zipName = "libplctag_${project.libplctagProjectVersion}_macos_x64.zip"
+        def targetFolderPath = "$rootDir/libplctag4j-jar/src/main/resources/darwin/"
+        def targetFolder = new File(targetFolderPath)
+        def extractPathBase = getNativeLibrary("${zipName}")
+        def extractFileBase = "${extractPathBase}/libplctag.dylib"
+        def extractFile = new File(extractFileBase)
+
+        System.err.println("extractFile=" + extractFile.path.toString())
+
+        from extractFile
+        into targetFolder
+}
+
+
+// task unzipLinuxX64Zip(type: Copy) {
+//     def zipFile = file("$rootDir/external_zips/")
+//     def outputDir = file("${buildDir}/unpacked/dist")
+
+//     from zipTree(zipFile)
+//     into outputDir
+// }
+
+// someOtherTask.dependsOn downloadSomething
+
+// class MyDownload extends DefaultTask {
+//     @Input
+//     String sourceUrl
+
+//     @OutputFile
+//     File target
+
+//     @TaskAction
+//     void download() {
+//        ant.get(src: sourceUrl, dest: target)
+//     }
+// }
 
 
 task minJar(type: Jar, name: "libplctag4j_minJar") {
