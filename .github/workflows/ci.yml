@@ -144,8 +144,8 @@ jobs:
       run: |
         if [ -e ${{ env.AAR_FULL_NAME }} ]; then
           echo "Uploading Android AAR file."
-          echo "curl -T ${{ env.AAR_FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/org.libplctag4j/${{ env.VERSION }}/${{ env.ARTIFACT_NAME_MIN }}.jar?publish=1&override=1"
-          curl -T ${{ env.AAR_FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/org.libplctag4j/${{ env.VERSION }}/${{ env.ARTIFACT_NAME_MIN }}.jar?publish=1&override=1
+          echo "curl -T ${{ env.AAR_FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/org.libplctag4j/${{ env.VERSION }}/${{ env.AAR_ARTIFACT_NAME }}.aar?publish=1&override=1"
+          curl -T ${{ env.AAR_FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/org.libplctag4j/${{ env.VERSION }}/${{ env.AAR_ARTIFACT_NAME }}.aar?publish=1&override=1
         else
           echo "Android AAR file not found!"
         fi
