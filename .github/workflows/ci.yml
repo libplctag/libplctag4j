@@ -93,10 +93,10 @@ jobs:
         echo "VERSION=${VERSION}"
         echo "::set-env name=VERSION::${VERSION}"
         # get POM info
-        export POM_NAME=`ls ${{ github.workspace }}/libplctag4j-jar/build/libs/libplctag-*.xml | tail -n 1`
+        export POM_NAME=`ls ${{ github.workspace }}/libplctag4j-jar/build/libs/libplctag-*.pom | tail -n 1`
         echo "POM_NAME=${POM_NAME}"
         echo "::set-env name=POM_NAME::${POM_NAME}"
-        export POM_ARTIFACT_NAME=`basename -s .jar ${POM_NAME}`
+        export POM_ARTIFACT_NAME=`basename -s .pom ${POM_NAME}`
         echo "POM_ARTIFACT_NAME=${POM_ARTIFACT_NAME}"
         echo "::set-env name=POM_ARTIFACT_NAME::${POM_ARTIFACT_NAME}"
         # get AAR info
