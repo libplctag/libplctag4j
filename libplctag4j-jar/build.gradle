@@ -31,14 +31,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-plugins {
-    id 'java'
-}
+apply plugin: 'java'
+apply plugin: 'maven'
 
 // The version is a little tricky because there are two parts:
 //    - The first part is the API version for Java.
 //    - The second part is the C DLL API supported.
 //version = '0.9.3-2.1.18'
+
+group = 'org.libplctag'
+version = "${project.libplctag4jProjectVersion}-${project.libplctagProjectVersion}"
 
 repositories {
     jcenter()
@@ -86,14 +88,24 @@ jar {
         }
     }
 
-    archivesBaseName="libplctag4j"
+    archivesBaseName="libplctag"
     archiveVersion="${project.libplctag4jProjectVersion}-${project.libplctagProjectVersion}"
 
     // dependsOn 'getLinuxX64NativeLibrary'
     // dependsOn 'getLinuxX86NativeLibrary'
 }
 
-processResources.dependsOn([ 'getLinuxX64NativeLibrary', 'getLinuxX86NativeLibrary', 'getWindowsX64NativeLibrary', 'getWindowsX86NativeLibrary', 'getMacOSX64NativeLibrary' ])
+task setupPom(type: Copy) {
+    from("${rootDir}/libplctag4j-jar/src/main/xml/pom.xml") {
+        filter{ it.replaceAll('@@projVersion@@', "${project.libplctag4jProjectVersion}-${project.libplctagProjectVersion}")}
+    }
+    into "${rootDir}/libplctag4j-jar/build/libs"
+    rename("pom.xml", "libplctag-${project.libplctag4jProjectVersion}-${project.libplctagProjectVersion}.pom")
+}
+
+build.dependsOn('writeNewPom')
+
+processResources.dependsOn([ 'setupPom', 'getLinuxX64NativeLibrary', 'getLinuxX86NativeLibrary', 'getWindowsX64NativeLibrary', 'getWindowsX86NativeLibrary', 'getMacOSX64NativeLibrary' ])
 
 def getNativeLibrary(String srcZipBase) {
     def srcZipUrl = "https://github.com/libplctag/libplctag/releases/download/v${project.libplctagProjectVersion}/${srcZipBase}"
