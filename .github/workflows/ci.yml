@@ -80,23 +80,27 @@ jobs:
 
     - name: Get artifact name
       run: |
-        export FULL_NAME=`ls ${{ github.workspace }}/libplctag4j-jar/build/libs/libplctag4j-*.jar | tail -n 1`
+        # get main JAR artifact full path and file name.
+        export FULL_NAME=`ls ${{ github.workspace }}/libplctag4j-jar/build/libs/libplctag-*.jar | tail -n 1`
         echo "FULL_NAME=${FULL_NAME}"
         echo "::set-env name=FULL_NAME::${FULL_NAME}"
         export ARTIFACT_NAME=`basename -s .jar ${FULL_NAME}`
         echo "ARTIFACT_NAME=${ARTIFACT_NAME}"
         echo "::set-env name=ARTIFACT_NAME::${ARTIFACT_NAME}"
+        # get version number from artifact name
         PARTS=($(echo "$ARTIFACT_NAME" | tr '-' "\n"))
         export VERSION="${PARTS[1]}-${PARTS[2]}"
         echo "VERSION=${VERSION}"
         echo "::set-env name=VERSION::${VERSION}"
-        export FULL_NAME_MIN=`ls ${{ github.workspace }}/libplctag4j-jar/build/libs/libplctag4j_min-*.jar | tail -n 1`
-        echo "FULL_NAME_MIN=${FULL_NAME_MIN}"
-        echo "::set-env name=FULL_NAME_MIN::${FULL_NAME_MIN}"
-        export ARTIFACT_NAME_MIN=`basename -s .jar ${FULL_NAME_MIN}`
-        echo "ARTIFACT_NAME_MIN=${ARTIFACT_NAME_MIN}"
-        echo "::set-env name=ARTIFACT_NAME_MIN::${ARTIFACT_NAME_MIN}"
-        export AAR_FULL_NAME=`ls ${{ github.workspace }}/libplctag4j-aar/build/outputs/aar/libplctag4j-*.aar | tail -n 1`
+        # get POM info
+        export POM_NAME=`ls ${{ github.workspace }}/libplctag4j-jar/build/libs/libplctag-*.xml | tail -n 1`
+        echo "POM_NAME=${POM_NAME}"
+        echo "::set-env name=POM_NAME::${POM_NAME}"
+        export POM_ARTIFACT_NAME=`basename -s .jar ${POM_NAME}`
+        echo "POM_ARTIFACT_NAME=${POM_ARTIFACT_NAME}"
+        echo "::set-env name=POM_ARTIFACT_NAME::${POM_ARTIFACT_NAME}"
+        # get AAR info
+        export AAR_FULL_NAME=`ls ${{ github.workspace }}/libplctag4j-aar/build/outputs/aar/libplctag-*.aar | tail -n 1`
         echo "AAR_FULL_NAME=${AAR_FULL_NAME}"
         echo "::set-env name=AAR_FULL_NAME::${AAR_FULL_NAME}"
         export AAR_ARTIFACT_NAME=`basename -s .aar ${AAR_FULL_NAME}`
@@ -107,12 +111,6 @@ jobs:
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ env.FULL_NAME }}
-
-    - name: Upload minimal JAR to GitHub
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ env.ARTIFACT_NAME }}
-        path: ${{ env.FULL_NAME_MIN }}
 
     - name: Upload docs to GitHub
       uses: actions/upload-artifact@v2
@@ -126,6 +124,16 @@ jobs:
           echo "Uploading full JAR file."
           echo "curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/org.libplctag/${{ env.VERSION }}/${{ env.ARTIFACT_NAME }}.jar?publish=1&override=1"
           curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/org.libplctag/${{ env.VERSION }}/${{ env.ARTIFACT_NAME }}.jar?publish=1&override=1
+        else
+          echo "Full JAR file not found!"
+        fi
+
+    - name: Upload POM to Bintray
+      run: |
+        if [ -e ${{ env.POM_NAME }} ]; then
+          echo "Uploading full JAR file."
+          echo "curl -T ${{ env.POM_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/org.libplctag/${{ env.VERSION }}/${{ env.POM_ARTIFACT_NAME }}.pom?publish=1&override=1"
+          curl -T ${{ env.POM_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/org.libplctag/${{ env.VERSION }}/${{ env.POM_ARTIFACT_NAME }}.pom?publish=1&override=1
         else
           echo "Full JAR file not found!"
         fi
