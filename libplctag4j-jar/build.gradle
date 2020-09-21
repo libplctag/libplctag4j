@@ -103,8 +103,7 @@ task setupPom(type: Copy) {
     rename("pom.xml", "libplctag-${project.libplctag4jProjectVersion}-${project.libplctagProjectVersion}.pom")
 }
 
-build.dependsOn('writeNewPom')
-
+build.dependsOn('setupPom')
 processResources.dependsOn([ 'setupPom', 'getLinuxX64NativeLibrary', 'getLinuxX86NativeLibrary', 'getWindowsX64NativeLibrary', 'getWindowsX86NativeLibrary', 'getMacOSX64NativeLibrary' ])
 
 def getNativeLibrary(String srcZipBase) {
