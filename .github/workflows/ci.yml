@@ -124,8 +124,8 @@ jobs:
       run: |
         if [ -e ${{ env.FULL_NAME }} ]; then
           echo "Uploading full JAR file."
-          echo "curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/org.libplctag4j/${{ env.VERSION }}/libplctag4j.jar?publish=1&override=1"
-          curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/org.libplctag4j/${{ env.VERSION }}/libplctag4j.jar?publish=1&override=1
+          echo "curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/org.libplctag/${{ env.VERSION }}/${{ env.ARTIFACT_NAME }}.jar?publish=1&override=1"
+          curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/org.libplctag/${{ env.VERSION }}/${{ env.ARTIFACT_NAME }}.jar?publish=1&override=1
         else
           echo "Full JAR file not found!"
         fi
@@ -134,8 +134,8 @@ jobs:
       run: |
         if [ -e ${{ env.AAR_FULL_NAME }} ]; then
           echo "Uploading Android AAR file."
-          echo "curl -T ${{ env.AAR_FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/org.libplctag4j/${{ env.VERSION }}/libplctag4j.aar?publish=1&override=1"
-          curl -T ${{ env.AAR_FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/org.libplctag4j/${{ env.VERSION }}/libplctag4j.aar?publish=1&override=1
+          echo "curl -T ${{ env.AAR_FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/org.libplctag/${{ env.VERSION }}/${{ env.AAR_ARTIFACT_NAME }}.aar?publish=1&override=1"
+          curl -T ${{ env.AAR_FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/org.libplctag/${{ env.VERSION }}/${{ env.AAR_ARTIFACT_NAME }}.aar?publish=1&override=1
         else
           echo "Android AAR file not found!"
         fi
