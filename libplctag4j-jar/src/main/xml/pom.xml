@@ -1,8 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.libplctag</groupId>
-  <artifactId>libplctag</artifactId>
+
+  <groupId>com.github.libplctag</groupId>
+  <artifactId>libplctag4j</artifactId>
   <version>@@projVersion@@</version>
+  <packaging>jar</packaging>
+
+  <name>libplctag4j</name>
+  <description>A library to communicate with Allen-Bradley and Modbus PLCs</description>
+  <url>http://github.com/libplctag/libplctag4j</url>
+
+  <licenses>
+
+    <license>
+      <name>The Mozilla Public License 2.0</name>
+      <url>https://www.mozilla.org/en-US/MPL/2.0/</url>
+    </license>
+
+    <license>
+      <name>The GNU Lesser General Public License, version 2.1</name>
+      <url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html</url>
+    </license>
+
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Kyle Hayes</name>
+      <email>kyle.hayes@gmail.com</email>
+      <organizationUrl>https://github.com/libplctag</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git://github.com/libplctag/libplctag4j.git</connection>
+    <developerConnection>scm:git:ssh://github.com:libplctag/libplctag4j.git</developerConnection>
+    <url>http://github.com/libplctag/libplctag4j/tree/release</url>
+   </scm>
 </project>
