@@ -106,7 +106,7 @@ jobs:
         export AAR_ARTIFACT_NAME=`basename -s .aar ${AAR_FULL_NAME}`
         echo "::set-env name=AAR_ARTIFACT_NAME::${AAR_ARTIFACT_NAME}"
 
-    - name: Upload full JAR to GitHub
+    - name: Upload JAR to GitHub
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.ARTIFACT_NAME }}
@@ -116,7 +116,13 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.ARTIFACT_NAME }}
-        path: ${{ github.workspace }}/build/docs
+        path: ${{ github.workspace }}/libplctag4j-jar/build/docs/javadoc/
+
+    - name: Upload AAR to GitHub
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ github.workspace }}/libplctag4j-aar/build/outputs/aar/
 
     - name: Upload full JAR to Bintray
       run: |
