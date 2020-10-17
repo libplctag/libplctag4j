@@ -36,7 +36,6 @@ package org.libplctag;
 
 import java.io.File;
 import java.io.IOException;
-//import java.util.StringTokenizer;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Native;
@@ -56,45 +55,51 @@ public class Tag {
         //     System.err.println("Path search segment: " + parser.nextToken());
         // }
 
-        try {
-            nativeLib = NativeLibrary.getInstance(Tag.JNA_LIBRARY_NAME);
-            // System.err.println("Found library in system path!");
-        } catch(UnsatisfiedLinkError e1) {
-            // System.err.println("Unable to find library in system, will try DLL.");
+        System.setProperty("jna.debug_load", "true");
 
-            try {
-                // try to extract the library from the DLL.
-                File libFile = Native.extractFromResourcePath(Tag.JNA_LIBRARY_NAME, Tag.class.getClassLoader());
-
-                try {
-                    nativeLib = NativeLibrary.getInstance(libFile.getAbsolutePath());
-                    // System.err.println("Loaded library from native DLL in \"" + libFile.getAbsolutePath() + "\".");
-                } catch(UnsatisfiedLinkError e3) {
-                    // System.err.println("Unable to load native DLL from path \"" + libFile.getAbsolutePath() + "\"!");
-                    // System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
-                    throw e3;
-                }
-            } catch(IOException e2) {
-                // System.err.println("Unable to extract library \"" + Tag.JNA_LIBRARY_NAME + "\" from JAR!");
-                //System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
-                //System.err.println("Unable to extract library, got IOException: " + e2.getMessage());
-                //e2.printStackTrace();
-                throw new RuntimeException("Unable to extract library \"" + Tag.JNA_LIBRARY_NAME + "\" for OS " + System.getProperty("os.arch") + " and architecture " + Platform.ARCH.toString() + " from JAR!");
-            }
-        }
+//        try {
+//            //nativeLib = NativeLibrary.getInstance(Tag.JNA_LIBRARY_NAME);
+//            nativeLib = NativeLibrary.getInstance("/home/kyle/Documents/Projects/libplctag/libplctag-org/libplctag4j/native_libs/linux-x86-64/libplctag.so");
+//            System.err.println("Found library in system path!");
+//        } catch(UnsatisfiedLinkError e1) {
+//            // System.err.println("Unable to find library in system, will try DLL.");
+//
+//            try {
+//                // try to extract the library from the DLL.
+//                File libFile = Native.extractFromResourcePath(Tag.JNA_LIBRARY_NAME, Tag.class.getClassLoader());
+//
+//                try {
+//                    nativeLib = NativeLibrary.getInstance(libFile.getAbsolutePath());
+//                    // System.err.println("Loaded library from native DLL in \"" + libFile.getAbsolutePath() + "\".");
+//                } catch(UnsatisfiedLinkError e3) {
+//                    // System.err.println("Unable to load native DLL from path \"" + libFile.getAbsolutePath() + "\"!");
+//                    // System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
+//                    throw e3;
+//                }
+//            } catch(IOException e2) {
+//                // System.err.println("Unable to extract library \"" + Tag.JNA_LIBRARY_NAME + "\" from JAR!");
+//                //System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
+//                //System.err.println("Unable to extract library, got IOException: " + e2.getMessage());
+//                //e2.printStackTrace();
+//                throw new RuntimeException("Unable to extract library \"" + Tag.JNA_LIBRARY_NAME + "\" for OS " + System.getProperty("os.arch") + " and architecture " + Platform.ARCH.toString() + " from JAR!");
+//            }
+//        }
 
         // we found the library, try to set it up for JNA
-        try {
-            // map all native methods in this class to the library.
-            Native.register(Tag.class, Tag.JNA_LIBRARY_NAME);
-        } catch(Exception e4) {
-            e4.printStackTrace();
-            //System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
-            throw e4;
-        }
+        // FIXME? do we need to be synchronized here?
+        synchronized(Tag.class) {
+            try {
+                // map all native methods in this class to the library.
+                Native.register(Tag.JNA_LIBRARY_NAME);
+            } catch(Exception e4) {
+                e4.printStackTrace();
+                //System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
+                throw e4;
+            }
 
-        if(!Tag.checkLibraryVersion(2, 1, 16)) {
-            throw new RuntimeException("Unable to load required library version, 2.1.16, or later!");
+            if(!Tag.checkLibraryVersion(2, 1, 16)) {
+                throw new RuntimeException("Unable to load required library version, 2.1.16, or later!");
+            }
         }
     }
 
@@ -329,9 +334,7 @@ public class Tag {
     */
 
     public static boolean checkLibraryVersion(int major_ver, int minor_ver, int patch_ver) {
-    	int res = Tag.plc_tag_check_lib_version(major_ver, minor_ver, patch_ver);
-
-    	if(res == Tag.PLCTAG_STATUS_OK) {
+    	if(Tag.plc_tag_check_lib_version(major_ver, minor_ver, patch_ver) == Tag.PLCTAG_STATUS_OK) {
     		return true;
     	} else {
     		return false;
@@ -427,7 +430,7 @@ public class Tag {
      *
      * Get the bit at the specified bit offset.
      *
-     * @param bit_offset
+     * @param bit_offset The offset in bits (counting from zero) of the bit to read.
      * @return The bit value as 0 or 1, or an error (negative) if there was a problem.
      */
 
@@ -487,7 +490,8 @@ public class Tag {
      * Note that Java does not have unsigned values that can be used here.   We
      * fake this by using a long and adding an offset to negative values.
      *
-     * @param offset
+     * @param offset The offset in bytes of the unsigned 32-bit integer to read.   Counts
+     *               from zero.
      * @return UINT32_MAX if there is an error otherwise the value.
      */
     public long getUInt32(int offset) {
@@ -677,7 +681,7 @@ public class Tag {
     public static final int PLCTAG_EVENT_DESTROYED         = (6);
 
     public interface EventCallbackInterface extends Callback {
-        public void invoke(int tag_id, int event, int status);
+        void invoke(int tag_id, int event, int status);
     }
 
     // Keep a reference here so that GC does not get it.
@@ -738,7 +742,7 @@ public class Tag {
     */
 
     public interface LoggingCallbackInterface extends Callback {
-        public void invoke(int tag_id, int debugLevel, String msg);
+        void invoke(int tag_id, int debugLevel, String msg);
     }
 
     /* as with the event callback, we need to keep this to prevent GC from getting it. */

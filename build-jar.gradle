@@ -1,0 +1,314 @@
+/***************************************************************************
+ *   Copyright (C) 2020 by Kyle Hayes                                      *
+ *   Author Kyle Hayes  kyle.hayes@gmail.com                               *
+ *                                                                         *
+ * This software is available under either the Mozilla Public License      *
+ * version 2.0 or the GNU LGPL version 2 (or later) license, whichever     *
+ * you choose.                                                             *
+ *                                                                         *
+ * MPL 2.0:                                                                *
+ *                                                                         *
+ *   This Source Code Form is subject to the terms of the Mozilla Public   *
+ *   License, v. 2.0. If a copy of the MPL was not distributed with this   *
+ *   file, You can obtain one at http://mozilla.org/MPL/2.0/.              *
+ *                                                                         *
+ *                                                                         *
+ * LGPL 2:                                                                 *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Library General Public License as       *
+ *   published by the Free Software Foundation; either version 2 of the    *
+ *   License, or (at your option) any later version.                       *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU Library General Public     *
+ *   License along with this program; if not, write to the                 *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+
+plugins {
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
+    id 'maven-publish'
+    id 'java'
+}
+
+// The version is a little tricky because there are two parts:
+//    - The first part is the API version for Java.
+//    - The second part is the C DLL API supported.
+version = "${project.libplctag4jProjectVersion}-${project.libplctagProjectVersion}"
+group = "${project.projectGroupId}"
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    // we need JNA at compile time.
+    implementation 'net.java.dev.jna:jna:5.6.0'
+
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
+
+    // use the libplctag4j jar when testing.   This gets the native DLLs.
+    testImplementation fileTree(dir: 'build/libs', include: ['*.jar'])
+}
+
+def getNativeLibrary(String srcZipBase) {
+    def srcZipUrl = "https://github.com/libplctag/libplctag/releases/download/v${project.libplctagProjectVersion}/${srcZipBase}"
+    def zipDirBase = "${rootDir}/external_zips"
+    def zipDir = new File(zipDirBase)
+    def localZipFile = new File("${zipDirBase}/${srcZipBase}")
+    def extractDirBase = zipDirBase + "/" + srcZipBase.take(srcZipBase.lastIndexOf('.'))
+    def extractDir = new File(extractDirBase)
+
+    // if zip folder does not exist, then make the folder
+    if (!zipDir.exists()) {
+        // need to make the directory in which we will check out the ZIPs.
+        zipDir.mkdirs()
+    }
+
+    // download
+    if (!localZipFile.exists()) {
+        ant.get(src: "${srcZipUrl}", dest: zipDir)
+    }
+
+    // unzip it.
+    if (localZipFile.exists() && !extractDir.exists()) {
+        extractDir.mkdirs()
+        ant.unzip(src: localZipFile, dest: extractDir)
+    }
+
+    //System.err.println("Returning extract dir base=" + extractDirBase)
+
+    return extractDirBase
+}
+
+
+task getLinuxX64NativeLibrary(type: Copy) {
+    def zipName = "libplctag_${project.libplctagProjectVersion}_ubuntu_x64.zip"
+    def targetFolderPath = "${rootDir}/native_libs/linux-x86-64/"
+    def targetFolder = new File(targetFolderPath)
+    def extractPathBase = getNativeLibrary("${zipName}")
+    def extractFileBase = "${extractPathBase}/libplctag.so"
+    def extractFile = new File(extractFileBase)
+
+    //System.err.println("extractFile=" + extractFile.path.toString())
+
+    from extractFile
+    into targetFolder
+}
+
+task getLinuxX86NativeLibrary(type: Copy) {
+    def zipName = "libplctag_${project.libplctagProjectVersion}_ubuntu_x86.zip"
+    def targetFolderPath = "${rootDir}/native_libs/linux-x86/"
+    def targetFolder = new File(targetFolderPath)
+    def extractPathBase = getNativeLibrary("${zipName}")
+    def extractFileBase = "${extractPathBase}/libplctag.so"
+    def extractFile = new File(extractFileBase)
+
+    //System.err.println("extractFile=" + extractFile.path.toString())
+
+    from extractFile
+    into targetFolder
+}
+
+task getWindowsX64NativeLibrary(type: Copy) {
+    def zipName = "libplctag_${project.libplctagProjectVersion}_windows_x64.zip"
+    def targetFolderPath = "${rootDir}/native_libs/win32-x86-64/"
+    def targetFolder = new File(targetFolderPath)
+    def extractPathBase = getNativeLibrary("${zipName}")
+    def extractFileBase = "${extractPathBase}/Release/plctag.dll"
+    def extractFile = new File(extractFileBase)
+
+    //System.err.println("extractFile=" + extractFile.path.toString())
+
+    from extractFile
+    into targetFolder
+}
+
+task getWindowsX86NativeLibrary(type: Copy) {
+    def zipName = "libplctag_${project.libplctagProjectVersion}_windows_x86.zip"
+    def targetFolderPath = "${rootDir}/native_libs/win32-x86/"
+    def targetFolder = new File(targetFolderPath)
+    def extractPathBase = getNativeLibrary("${zipName}")
+    def extractFileBase = "${extractPathBase}/Release/plctag.dll"
+    def extractFile = new File(extractFileBase)
+
+    //System.err.println("extractFile=" + extractFile.path.toString())
+
+    from extractFile
+    into targetFolder
+}
+
+
+task getMacOSX64NativeLibrary(type: Copy) {
+    def zipName = "libplctag_${project.libplctagProjectVersion}_macos_x64.zip"
+    def targetFolderPath = "${rootDir}/native_libs/darwin/"
+    def targetFolder = new File(targetFolderPath)
+    def extractPathBase = getNativeLibrary("${zipName}")
+    def extractFileBase = "${extractPathBase}/libplctag.dylib"
+    def extractFile = new File(extractFileBase)
+
+    //System.err.println("extractFile=" + extractFile.path.toString())
+
+    from extractFile
+    into targetFolder
+}
+
+
+
+
+
+
+shadowJar {
+    dependsOn classes, getLinuxX64NativeLibrary, getLinuxX86NativeLibrary, getWindowsX64NativeLibrary, getWindowsX86NativeLibrary, getMacOSX64NativeLibrary
+
+    archivesBaseName = 'libplctag4j'
+    archiveClassifier = ''
+    archiveVersion = "${project.libplctag4jProjectVersion}-${project.libplctagProjectVersion}"
+
+    // get the license files.
+	from {
+        ["LICENSE-2.LGPL","LICENSE-1.MPL"]
+    }
+
+    from "${rootDir}/native_libs/"
+}
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = "${project.projectName}"
+                description = 'A library for PLC communication'
+                url = "${project.projectOrg}"
+
+                licenses {
+                    license {
+                        name = 'MPL 2.0'
+                        url = 'https://www.mozilla.org/en-US/MPL/2.0/'
+                    }
+
+                    license {
+                        name = 'LGPL 2.1'
+                        url = 'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html'
+                    }
+                }
+
+                developers {
+                    developer {
+                        name = 'Kyle Hayes'
+                        email = 'kyle.hayes@gmail.com'
+                    }
+                }
+
+                scm {
+                    connection = "${project.projectScn}"
+                    developerConnection = "${project.projectScn}"
+                    projectIssueTracker = "${project.projectIssueTracker}"
+                    url = "${project.projectUrl}"
+                }
+            }
+
+
+            from components.java
+
+ //           pom {
+//                licenses {
+//                    license {
+//                        name 'MPL 2.0'
+//                        url 'https://www.mozilla.org/en-US/MPL/2.0/'
+//                    }
+//
+//                    license {
+//                        name 'LGPL 2.1'
+//                        url 'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html'
+//                    }
+//                }
+//
+//                developers {
+//                    developer {
+//                        name 'Kyle Hayes'
+//                        email 'kyle.hayes@gmail.com'
+//                        url 'https://libplctag.github.io'
+//                    }
+//                }
+//
+//                scm {
+//                    url "${project.projectUrl}"
+//                }
+//            }
+        }
+    }
+}
+
+
+
+
+//jar {
+//    // get the JNA classes and DLLs, and the core library DLLs
+//    from {
+//        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+//    }
+//
+//    // get the licenses.
+//	from{
+//        ["LICENSE-2.LGPL","LICENSE-1.MPL"]
+//    }
+//
+//    // manifest {
+//    //     attributes "Implementation-Title": "Tag",
+//    //                "Implementation-Version": "${project.version}",
+//    //                "Main-Class": "org.libplctag.Tag"
+//    // }
+//}
+//
+//
+//task minJar(type: Jar, name: "${project.name}_min") {
+//    baseName = "${project.name}_min"
+//    version = project.version
+//    String rootClass = 'org.libplctag.Tag'
+//    String className = 'Tag'
+//
+//    from(sourceSets.main.output) {
+//        include "org/libplctag/**"
+//    }
+//
+//    from{
+//        ["LICENSE-2.LGPL","LICENSE-1.MPL"]
+//    }
+//
+//    manifest {
+//        attributes "Implementation-Title": "$className",
+//                   "Implementation-Version": "$version",
+//                   "Main-Class": "$rootClass"
+//    }
+//}
+//
+//task maxJar(type: Jar, name: "${project.name}_max") {
+//    archivesBaseName = "${project.name}_max"
+//    version = project.version
+//    String rootClass = 'org.libplctag.Tag'
+//    String className = 'Tag'
+//
+//    from(sourceSets.main.output) {
+//        include "**"
+//    }
+//
+//    from {
+//        configurations.compile.collect {
+//            it.isDirectory() ? it : zipTree(it)
+//        }
+//    }
+//
+//    from{
+//        ["LICENSE-2.LGPL","LICENSE-1.MPL"]
+//    }
+//}

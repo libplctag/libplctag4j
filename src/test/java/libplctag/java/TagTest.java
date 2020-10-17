@@ -49,11 +49,18 @@ public class TagTest {
         assertTrue("Library does not support the required version of 2.1.16!", Tag.checkLibraryVersion(2, 1, 16));
 
         // set the debug level.
-        Tag.setDebugLevel(Tag.PLCTAG_DEBUG_DETAIL);
+        Tag.setDebugLevel(Tag.PLCTAG_DEBUG_SPEW);
+
+        int version_major = Tag.getLibraryIntAttribute("version_major", 0);
+        int version_minor = Tag.getLibraryIntAttribute("version_minor", 0);
+        int version_patch = Tag.getLibraryIntAttribute("version_patch", 0);
+
+        System.err.println("Using library version " + version_major + "." + version_minor + "." + version_patch + ".");
        
         Tag tag = new Tag("make=system&family=library&name=debug", TIMEOUT);
         assertEquals("Tag was not created correctly!", tag.getStatus(), Tag.PLCTAG_STATUS_OK);
 
+        // FIXME - one of the two callbacks should show a lambda example.
         Tag.EventCallbackInterface eventCallback = new Tag.EventCallbackInterface(){
             public void invoke(int tag_id, int event, int status) {
                 String eventMsg;

@@ -20,10 +20,10 @@ jobs:
         java-version: 1.8
 
     - name: Build Release JAR
-      run: gradle clean jar
+      run: gradle -b build-jar.gradle clean shadowJar
 
     - name: Test Release JAR
-      run: gradle test --stacktrace --info
+      run: gradle -b build-jar.gradle test --stacktrace --info
 
   macos-test:
     name: macOS Test
@@ -37,10 +37,10 @@ jobs:
         java-version: 1.8
 
     - name: Build Release JAR
-      run: gradle clean jar
+      run: gradle -b build-jar.gradle clean shadowJar
 
     - name: Test Release JAR
-      run: gradle test --stacktrace --info
+      run: gradle -b build-jar.gradle test --stacktrace --info
 
   windows-test:
     name: Windows Test
@@ -54,10 +54,10 @@ jobs:
         java-version: 1.8
 
     - name: Build Release JAR
-      run: gradle clean jar
+      run: gradle -b build-jar.gradle clean shadowJar
 
     - name: Test Release JAR
-      run: gradle test --stacktrace --info
+      run: gradle -b build-jar.gradle test --stacktrace --info
 
   generate-artifacts:
     needs: [ ubuntu-test, windows-test, macos-test ]
@@ -71,11 +71,14 @@ jobs:
       with:
         java-version: 1.8
 
-    - name: Build Release JARs
-      run: gradle clean jar minJar
+    - name: Build Release JAR
+      run: gradle -b build-jar.gradle clean shadowJar
+
+    - name: Build POM file
+      run: gradle -b build-jar.gradle publishToMavenLocal
 
     - name: Build Javadoc
-      run: gradle javadoc
+      run: gradle -b build-jar.gradle javadoc
 
     - name: Get artifact name
       run: |
@@ -90,24 +93,15 @@ jobs:
         export VERSION="${PARTS[1]}-${PARTS[2]}"
         echo "VERSION=${VERSION}"
         echo "::set-env name=VERSION::${VERSION}"
-        export FULL_NAME_MIN=`ls ${{ github.workspace }}/build/libs/libplctag4j_min-*.jar | tail -n 1`
-        echo "FULL_NAME_MIN=${FULL_NAME_MIN}"
-        echo "::set-env name=FULL_NAME_MIN::${FULL_NAME_MIN}"
-        export ARTIFACT_NAME_MIN=`basename -s .jar ${FULL_NAME_MIN}`
-        echo "ARTIFACT_NAME_MIN=${ARTIFACT_NAME_MIN}"
-        echo "::set-env name=ARTIFACT_NAME_MIN::${ARTIFACT_NAME_MIN}"
+        export POM_NAME=`ls ${{ github.workspace }}/build/publications/mavenJava/pom-default.xml | tail -n 1`
+        echo "POM_NAME=${POM_NAME}"
+        echo "::set-env name=POM_NAME::${POM_NAME}"
 
     - name: Upload full JAR to GitHub
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ env.FULL_NAME }}
-
-    - name: Upload minimal JAR to GitHub
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ env.ARTIFACT_NAME }}
-        path: ${{ env.FULL_NAME_MIN }}
 
     - name: Upload docs to GitHub
       uses: actions/upload-artifact@v2
@@ -120,19 +114,19 @@ jobs:
         ls ${{ github.workspace }}/build/libs
         if [ -e ${{ env.FULL_NAME }} ]; then
           echo "Uploading full JAR file."
-          echo "curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/org.libplctag4j/${{ env.VERSION }}/${{ env.ARTIFACT_NAME }}.jar?publish=1&override=1"
-          curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/org.libplctag4j/${{ env.VERSION }}/${{ env.ARTIFACT_NAME }}.jar?publish=1&override=1
+          echo "curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/io.github.libplctag/${{ env.VERSION }}/${{ env.ARTIFACT_NAME }}.jar?publish=1&override=1"
+          curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/io.github.libplctag/${{ env.VERSION }}/${{ env.ARTIFACT_NAME }}.jar?publish=1&override=1
         else
           echo "Full JAR file not found!"
         fi
 
-    - name: Upload minimal JAR to Bintray
+    - name: Upload POM to Bintray
       run: |
-        ls ${{ github.workspace }}/build/libs
-        if [ -e ${{ env.FULL_NAME_MIN }} ]; then
-          echo "Uploading minimal JAR file."
-          echo "curl -T ${{ env.FULL_NAME_MIN }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/org.libplctag4j/${{ env.VERSION }}/${{ env.ARTIFACT_NAME_MIN }}.jar?publish=1&override=1"
-          curl -T ${{ env.FULL_NAME_MIN }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/org.libplctag4j/${{ env.VERSION }}/${{ env.ARTIFACT_NAME_MIN }}.jar?publish=1&override=1
+        ls ${{ github.workspace }}/build/publications/mavenJava/
+        if [ -e "${{ env.POM_NAME }}" ]; then
+          echo "Uploading POM file."
+          echo "curl -T ${{ env.POM_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/io.github.libplctag/${{ env.VERSION }}/pom.xml?publish=1&override=1"
+          curl -T ${{ env.POM_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/io.github.libplctag/${{ env.VERSION }}/pom.xml?publish=1&override=1
         else
-          echo "Minimal JAR file not found!"
+          echo "POM file found!"
         fi
