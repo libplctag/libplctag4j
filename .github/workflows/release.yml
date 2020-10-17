@@ -1,10 +1,10 @@
-name: libplctag4j CI
+name: libplctag4j Release CI
 
 on:
   push:
-    branches: [ release, prerelease ]
+    branches: [ release ]
   pull_request:
-    branches: [ release, prerelease ]
+    branches: [ release ]
 
 jobs:
 
@@ -114,8 +114,8 @@ jobs:
         ls ${{ github.workspace }}/build/libs
         if [ -e ${{ env.FULL_NAME }} ]; then
           echo "Uploading full JAR file."
-          echo "curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/io.github.libplctag/${{ env.VERSION }}/${{ env.ARTIFACT_NAME }}.jar?publish=1&override=1"
-          curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/io.github.libplctag/${{ env.VERSION }}/${{ env.ARTIFACT_NAME }}.jar?publish=1&override=1
+          echo "curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/${{ env.ARTIFACT_NAME }}.jar?publish=1&override=1"
+          curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/${{ env.ARTIFACT_NAME }}.jar?publish=1&override=1
         else
           echo "Full JAR file not found!"
         fi
@@ -125,8 +125,8 @@ jobs:
         ls ${{ github.workspace }}/build/publications/mavenJava/
         if [ -e "${{ env.POM_NAME }}" ]; then
           echo "Uploading POM file."
-          echo "curl -T ${{ env.POM_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/io.github.libplctag/${{ env.VERSION }}/pom.xml?publish=1&override=1"
-          curl -T ${{ env.POM_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/libplctag/libplctag4j/io.github.libplctag/${{ env.VERSION }}/pom.xml?publish=1&override=1
+          echo "curl -T ${{ env.POM_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/pom.xml?publish=1&override=1"
+          curl -T ${{ env.POM_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/pom.xml?publish=1&override=1
         else
           echo "POM file found!"
         fi
