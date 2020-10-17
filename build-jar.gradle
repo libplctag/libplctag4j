@@ -33,14 +33,15 @@
 
 plugins {
     id 'com.github.johnrengelman.shadow' version '6.0.0'
+    id 'maven-publish'
     id 'java'
 }
-
 
 // The version is a little tricky because there are two parts:
 //    - The first part is the API version for Java.
 //    - The second part is the C DLL API supported.
 version = "${project.libplctag4jProjectVersion}-${project.libplctagProjectVersion}"
+group = "${project.projectGroupId}"
 
 repositories {
     jcenter()
@@ -180,6 +181,73 @@ shadowJar {
     from "${rootDir}/native_libs/"
 }
 
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = "${project.projectName}"
+                description = 'A library for PLC communication'
+                url = "${project.projectOrg}"
+
+                licenses {
+                    license {
+                        name = 'MPL 2.0'
+                        url = 'https://www.mozilla.org/en-US/MPL/2.0/'
+                    }
+
+                    license {
+                        name = 'LGPL 2.1'
+                        url = 'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html'
+                    }
+                }
+
+                developers {
+                    developer {
+                        name = 'Kyle Hayes'
+                        email = 'kyle.hayes@gmail.com'
+                    }
+                }
+
+                scm {
+                    connection = "${project.projectScn}"
+                    developerConnection = "${project.projectScn}"
+                    projectIssueTracker = "${project.projectIssueTracker}"
+                    url = "${project.projectUrl}"
+                }
+            }
+
+
+            from components.java
+
+ //           pom {
+//                licenses {
+//                    license {
+//                        name 'MPL 2.0'
+//                        url 'https://www.mozilla.org/en-US/MPL/2.0/'
+//                    }
+//
+//                    license {
+//                        name 'LGPL 2.1'
+//                        url 'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html'
+//                    }
+//                }
+//
+//                developers {
+//                    developer {
+//                        name 'Kyle Hayes'
+//                        email 'kyle.hayes@gmail.com'
+//                        url 'https://libplctag.github.io'
+//                    }
+//                }
+//
+//                scm {
+//                    url "${project.projectUrl}"
+//                }
+//            }
+        }
+    }
+}
 
 
 
