@@ -18,3 +18,6 @@ gradlew.bat
 
 # random debugging files.
 log
+.idea/*
+external_zips/*
+native_libs/*

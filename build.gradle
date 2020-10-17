@@ -32,13 +32,15 @@
  ***************************************************************************/
 
 plugins {
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
     id 'java'
 }
+
 
 // The version is a little tricky because there are two parts:
 //    - The first part is the API version for Java.
 //    - The second part is the C DLL API supported.
-version = '0.9.3-2.1.18'
+version = "${project.libplctag4jProjectVersion}-${project.libplctagProjectVersion}"
 
 repositories {
     jcenter()
@@ -46,85 +48,199 @@ repositories {
 }
 
 dependencies {
+    // we need JNA at compile time.
     implementation 'net.java.dev.jna:jna:5.6.0'
-
-    compile 'net.java.dev.jna:jna:5.6.0'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 
     // use the libplctag4j jar when testing.   This gets the native DLLs.
-    testCompile fileTree(dir: 'build/libs', include: ['*.jar'])
+    testImplementation fileTree(dir: 'build/libs', include: ['*.jar'])
 }
 
-jar {
-    // get the JNA classes and DLLs, and the core library DLLs
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+def getNativeLibrary(String srcZipBase) {
+    def srcZipUrl = "https://github.com/libplctag/libplctag/releases/download/v${project.libplctagProjectVersion}/${srcZipBase}"
+    def zipDirBase = "${rootDir}/external_zips"
+    def zipDir = new File(zipDirBase)
+    def localZipFile = new File("${zipDirBase}/${srcZipBase}")
+    def extractDirBase = zipDirBase + "/" + srcZipBase.take(srcZipBase.lastIndexOf('.'))
+    def extractDir = new File(extractDirBase)
+
+    // if zip folder does not exist, then make the folder
+    if (!zipDir.exists()) {
+        // need to make the directory in which we will check out the ZIPs.
+        zipDir.mkdirs()
     }
 
-    // get the licenses.
-	from{
+    // download
+    if (!localZipFile.exists()) {
+        ant.get(src: "${srcZipUrl}", dest: zipDir)
+    }
+
+    // unzip it.
+    if (localZipFile.exists() && !extractDir.exists()) {
+        extractDir.mkdirs()
+        ant.unzip(src: localZipFile, dest: extractDir)
+    }
+
+    //System.err.println("Returning extract dir base=" + extractDirBase)
+
+    return extractDirBase
+}
+
+
+task getLinuxX64NativeLibrary(type: Copy) {
+    def zipName = "libplctag_${project.libplctagProjectVersion}_ubuntu_x64.zip"
+    def targetFolderPath = "${rootDir}/native_libs/linux-x86-64/"
+    def targetFolder = new File(targetFolderPath)
+    def extractPathBase = getNativeLibrary("${zipName}")
+    def extractFileBase = "${extractPathBase}/libplctag.so"
+    def extractFile = new File(extractFileBase)
+
+    //System.err.println("extractFile=" + extractFile.path.toString())
+
+    from extractFile
+    into targetFolder
+}
+
+task getLinuxX86NativeLibrary(type: Copy) {
+    def zipName = "libplctag_${project.libplctagProjectVersion}_ubuntu_x86.zip"
+    def targetFolderPath = "${rootDir}/native_libs/linux-x86/"
+    def targetFolder = new File(targetFolderPath)
+    def extractPathBase = getNativeLibrary("${zipName}")
+    def extractFileBase = "${extractPathBase}/libplctag.so"
+    def extractFile = new File(extractFileBase)
+
+    //System.err.println("extractFile=" + extractFile.path.toString())
+
+    from extractFile
+    into targetFolder
+}
+
+task getWindowsX64NativeLibrary(type: Copy) {
+    def zipName = "libplctag_${project.libplctagProjectVersion}_windows_x64.zip"
+    def targetFolderPath = "${rootDir}/native_libs/win32-x86-64/"
+    def targetFolder = new File(targetFolderPath)
+    def extractPathBase = getNativeLibrary("${zipName}")
+    def extractFileBase = "${extractPathBase}/Release/plctag.dll"
+    def extractFile = new File(extractFileBase)
+
+    //System.err.println("extractFile=" + extractFile.path.toString())
+
+    from extractFile
+    into targetFolder
+}
+
+task getWindowsX86NativeLibrary(type: Copy) {
+    def zipName = "libplctag_${project.libplctagProjectVersion}_windows_x86.zip"
+    def targetFolderPath = "${rootDir}/native_libs/win32-x86/"
+    def targetFolder = new File(targetFolderPath)
+    def extractPathBase = getNativeLibrary("${zipName}")
+    def extractFileBase = "${extractPathBase}/Release/plctag.dll"
+    def extractFile = new File(extractFileBase)
+
+    //System.err.println("extractFile=" + extractFile.path.toString())
+
+    from extractFile
+    into targetFolder
+}
+
+
+task getMacOSX64NativeLibrary(type: Copy) {
+    def zipName = "libplctag_${project.libplctagProjectVersion}_macos_x64.zip"
+    def targetFolderPath = "${rootDir}/native_libs/darwin/"
+    def targetFolder = new File(targetFolderPath)
+    def extractPathBase = getNativeLibrary("${zipName}")
+    def extractFileBase = "${extractPathBase}/libplctag.dylib"
+    def extractFile = new File(extractFileBase)
+
+    //System.err.println("extractFile=" + extractFile.path.toString())
+
+    from extractFile
+    into targetFolder
+}
+
+
+
+
+
+
+shadowJar {
+    dependsOn classes, getLinuxX64NativeLibrary, getLinuxX86NativeLibrary, getWindowsX64NativeLibrary, getWindowsX86NativeLibrary, getMacOSX64NativeLibrary
+
+    archivesBaseName = 'libplctag4j'
+    archiveClassifier = ''
+    archiveVersion = "${project.libplctag4jProjectVersion}-${project.libplctagProjectVersion}"
+
+    // get the license files.
+	from {
         ["LICENSE-2.LGPL","LICENSE-1.MPL"]
     }
 
-    // manifest {
-    //     attributes "Implementation-Title": "Tag",
-    //                "Implementation-Version": "${project.version}",
-    //                "Main-Class": "org.libplctag.Tag"
-    // }
+    from "${rootDir}/native_libs/"
 }
 
 
-task minJar(type: Jar, name: "${project.name}_min") {
-    baseName = "${project.name}_min"
-    version = project.version
-    String rootClass = 'org.libplctag.Tag'
-    String className = 'Tag'
 
-    from(sourceSets.main.output) {
-        include "org/libplctag/**"
-    }
 
-    from{
-        ["LICENSE-2.LGPL","LICENSE-1.MPL"]
-    }
 
-    manifest {
-        attributes "Implementation-Title": "$className",
-                   "Implementation-Version": "$version",
-                   "Main-Class": "$rootClass"
-    }
-}
-
-task maxJar(type: Jar, name: "${project.name}_max") {
-    baseName = "${project.name}_max"
-    version = project.version
-    String rootClass = 'org.libplctag.Tag'
-    String className = 'Tag'
-
-    from(sourceSets.main.output) {
-        include "**"
-    }
-
-    from {
-        configurations.compile.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-
-    from{
-        ["LICENSE-2.LGPL","LICENSE-1.MPL"]
-    }
-
-    // manifest {
-    //     attributes "Implementation-Title": "$className",
-    //                "Implementation-Version": "$version",
-    //                "Main-Class": "$rootClass"
-    // }
-}
-
-artifacts {
-    // add the minimal JAR to the artifacts.
-    archives minJar
-}
+//jar {
+//    // get the JNA classes and DLLs, and the core library DLLs
+//    from {
+//        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+//    }
+//
+//    // get the licenses.
+//	from{
+//        ["LICENSE-2.LGPL","LICENSE-1.MPL"]
+//    }
+//
+//    // manifest {
+//    //     attributes "Implementation-Title": "Tag",
+//    //                "Implementation-Version": "${project.version}",
+//    //                "Main-Class": "org.libplctag.Tag"
+//    // }
+//}
+//
+//
+//task minJar(type: Jar, name: "${project.name}_min") {
+//    baseName = "${project.name}_min"
+//    version = project.version
+//    String rootClass = 'org.libplctag.Tag'
+//    String className = 'Tag'
+//
+//    from(sourceSets.main.output) {
+//        include "org/libplctag/**"
+//    }
+//
+//    from{
+//        ["LICENSE-2.LGPL","LICENSE-1.MPL"]
+//    }
+//
+//    manifest {
+//        attributes "Implementation-Title": "$className",
+//                   "Implementation-Version": "$version",
+//                   "Main-Class": "$rootClass"
+//    }
+//}
+//
+//task maxJar(type: Jar, name: "${project.name}_max") {
+//    archivesBaseName = "${project.name}_max"
+//    version = project.version
+//    String rootClass = 'org.libplctag.Tag'
+//    String className = 'Tag'
+//
+//    from(sourceSets.main.output) {
+//        include "**"
+//    }
+//
+//    from {
+//        configurations.compile.collect {
+//            it.isDirectory() ? it : zipTree(it)
+//        }
+//    }
+//
+//    from{
+//        ["LICENSE-2.LGPL","LICENSE-1.MPL"]
+//    }
+//}
