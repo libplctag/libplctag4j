@@ -1,4 +1,4 @@
-name: libplctag4j CI
+name: libplctag4j Prerelease CI
 
 on:
   push:
