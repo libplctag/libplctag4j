@@ -33,7 +33,7 @@
 
 package libplctag.java;
 
-import org.libplctag.Tag;
+import io.github.libplctag.Tag;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
