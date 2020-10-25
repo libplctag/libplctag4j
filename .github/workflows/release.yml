@@ -74,11 +74,11 @@ jobs:
     - name: Build Release JAR
       run: gradle -b build-jar.gradle clean shadowJar
 
-    - name: Build POM file
-      run: gradle -b build-jar.gradle publishToMavenLocal
-
     - name: Build Javadoc
       run: gradle -b build-jar.gradle javadoc
+
+    - name: Build POM file
+      run: gradle -b build-jar.gradle publishToMavenLocal
 
     - name: Get artifact name
       run: |
@@ -133,6 +133,21 @@ jobs:
           curl -T ${{ github.workspace }}/sources.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}//io/github/libplctag/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-sources.jar?publish=1&override=1
         else
           echo "Sources directory not found!"
+        fi
+
+    - name: Upload javadoc JAR to Bintray
+      run: |
+        ls -lR ${{ github.workspace }}/build/docs/javadoc
+        if [ -d ${{ github.workspace }}/build/docs/javadoc ]; then
+          echo "Creating javadoc JAR file."
+          pushd ${{ github.workspace }}/build/docs/javadoc
+          jar cvf ${{ github.workspace }}/javadoc.jar *
+          popd
+          echo "Uploading javadoc JAR file."
+          echo "curl -T ${{ github.workspace }}/javadoc.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-javadoc.jar?publish=1&override=1"
+          curl -T ${{ github.workspace }}/javadoc.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}//io/github/libplctag/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-javadoc.jar?publish=1&override=1
+        else
+          echo "Javadoc directory not found!"
         fi
 
     - name: Upload POM to Bintray
