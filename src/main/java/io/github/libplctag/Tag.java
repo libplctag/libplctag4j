@@ -32,7 +32,7 @@
  ***************************************************************************/
 
 
-package org.libplctag;
+package io.github.libplctag;
 
 import java.io.File;
 import java.io.IOException;
