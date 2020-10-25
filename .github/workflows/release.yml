@@ -85,17 +85,17 @@ jobs:
         ls ${{ github.workspace }}/build/libs/libplctag4j*
         export FULL_NAME=`ls ${{ github.workspace }}/build/libs/libplctag4j-*.jar | tail -n 1`
         echo "FULL_NAME=${FULL_NAME}"
-        echo "::set-env name=FULL_NAME::${FULL_NAME}"
+        echo "FULL_NAME=${FULL_NAME}" >> $GITHUB_ENV
         export ARTIFACT_NAME=`basename -s .jar ${FULL_NAME}`
         echo "ARTIFACT_NAME=${ARTIFACT_NAME}"
-        echo "::set-env name=ARTIFACT_NAME::${ARTIFACT_NAME}"
+        echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
         PARTS=($(echo "$ARTIFACT_NAME" | tr '-' "\n"))
         export VERSION="${PARTS[1]}-${PARTS[2]}"
         echo "VERSION=${VERSION}"
-        echo "::set-env name=VERSION::${VERSION}"
+        echo "VERSION=${VERSION}" >> $GITHUB_ENV
         export POM_NAME=`ls ${{ github.workspace }}/build/publications/mavenJava/pom-default.xml | tail -n 1`
         echo "POM_NAME=${POM_NAME}"
-        echo "::set-env name=POM_NAME::${POM_NAME}"
+        echo "POM_NAME=${POM_NAME}" >> $GITHUB_ENV
 
     - name: Upload full JAR to GitHub
       uses: actions/upload-artifact@v2
