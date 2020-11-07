@@ -114,8 +114,8 @@ jobs:
         ls ${{ github.workspace }}/build/libs
         if [ -e ${{ env.FULL_NAME }} ]; then
           echo "Uploading full JAR file."
-          echo "curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.jar?publish=1&override=1"
-          curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}//io/github/libplctag/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.jar?publish=1&override=1
+          echo "curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.jar?publish=1&override=1"
+          curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} 'https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}//io/github/libplctag//libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.jar?publish=1&override=1'
         else
           echo "Full JAR file not found!"
         fi
@@ -129,8 +129,8 @@ jobs:
           jar cvf ${{ github.workspace }}/sources.jar io
           popd
           echo "Uploading source JAR file."
-          echo "curl -T ${{ github.workspace }}/sources.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-sources.jar?publish=1&override=1"
-          curl -T ${{ github.workspace }}/sources.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}//io/github/libplctag/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-sources.jar?publish=1&override=1
+          echo "curl -T ${{ github.workspace }}/sources.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-sources.jar?publish=1&override=1"
+          curl -T ${{ github.workspace }}/sources.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} 'https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}//io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-sources.jar?publish=1&override=1'
         else
           echo "Sources directory not found!"
         fi
@@ -144,8 +144,8 @@ jobs:
           jar cvf ${{ github.workspace }}/javadoc.jar *
           popd
           echo "Uploading javadoc JAR file."
-          echo "curl -T ${{ github.workspace }}/javadoc.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-javadoc.jar?publish=1&override=1"
-          curl -T ${{ github.workspace }}/javadoc.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}//io/github/libplctag/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-javadoc.jar?publish=1&override=1
+          echo "curl -T ${{ github.workspace }}/javadoc.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-javadoc.jar?publish=1&override=1"
+          curl -T ${{ github.workspace }}/javadoc.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} 'https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}//io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-javadoc.jar?publish=1&override=1'
         else
           echo "Javadoc directory not found!"
         fi
@@ -155,8 +155,8 @@ jobs:
         ls ${{ github.workspace }}/build/publications/mavenJava/
         if [ -e "${{ env.POM_NAME }}" ]; then
           echo "Uploading POM file."
-          echo "curl -T ${{ env.POM_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.pom?publish=1&override=1"
-          curl -T ${{ env.POM_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.pom?publish=1&override=1
+          echo "curl -T ${{ env.POM_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.pom?publish=1&override=1"
+          curl -T ${{ env.POM_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} 'https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.pom?publish=1&override=1'
         else
           echo "POM file found!"
         fi
