@@ -25,6 +25,9 @@ jobs:
     - name: Test Release JAR
       run: gradle -b build-jar.gradle test --stacktrace --info
 
+    - name: Build Release AAR
+      run: gradle -b build-aar.gradle clean assembleRelease
+
   macos-test:
     name: macOS Test
     runs-on: macos-latest

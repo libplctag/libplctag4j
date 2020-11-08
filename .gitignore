@@ -21,3 +21,6 @@ log
 .idea/*
 external_zips/*
 native_libs/*
+local.properties
+external_src
+.cxx
