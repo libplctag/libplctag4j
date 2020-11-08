@@ -22,11 +22,11 @@ jobs:
     - name: Build Release JAR
       run: gradle -b build-jar.gradle clean shadowJar
 
-    - name: Build Release AAR
-      run: gradle -b build-aar.gradle clean assembleRelease
-
     - name: Test Release JAR
       run: gradle -b build-jar.gradle test --stacktrace --info
+
+    - name: Build Release AAR
+      run: gradle -b build-aar.gradle clean assembleRelease
 
   macos-test:
     name: macOS Test
