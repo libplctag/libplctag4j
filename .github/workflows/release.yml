@@ -71,6 +71,9 @@ jobs:
       with:
         java-version: 1.8
 
+    - name: Get gradle version
+      run: gradle -v
+
     - name: Build Release JAR
       run: gradle -b build-jar.gradle clean shadowJar
 
