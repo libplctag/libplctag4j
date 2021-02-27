@@ -45,12 +45,14 @@ group = "${project.projectGroupId}"
 
 repositories {
     jcenter()
+    google()
     mavenCentral()
 }
 
 dependencies {
     // we need JNA at compile time.
-    implementation 'net.java.dev.jna:jna:5.6.0'
+    //implementation 'net.java.dev.jna:jna:5.6.0'
+    implementation group: 'net.java.dev.jna', name: 'jna', version: '5.7.0'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
@@ -217,98 +219,10 @@ publishing {
                 }
             }
 
-
             from components.java
-
- //           pom {
-//                licenses {
-//                    license {
-//                        name 'MPL 2.0'
-//                        url 'https://www.mozilla.org/en-US/MPL/2.0/'
-//                    }
-//
-//                    license {
-//                        name 'LGPL 2.1'
-//                        url 'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html'
-//                    }
-//                }
-//
-//                developers {
-//                    developer {
-//                        name 'Kyle Hayes'
-//                        email 'kyle.hayes@gmail.com'
-//                        url 'https://libplctag.github.io'
-//                    }
-//                }
-//
-//                scm {
-//                    url "${project.projectUrl}"
-//                }
-//            }
         }
     }
 }
 
 
 
-
-//jar {
-//    // get the JNA classes and DLLs, and the core library DLLs
-//    from {
-//        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-//    }
-//
-//    // get the licenses.
-//	from{
-//        ["LICENSE-2.LGPL","LICENSE-1.MPL"]
-//    }
-//
-//    // manifest {
-//    //     attributes "Implementation-Title": "Tag",
-//    //                "Implementation-Version": "${project.version}",
-//    //                "Main-Class": "org.libplctag.Tag"
-//    // }
-//}
-//
-//
-//task minJar(type: Jar, name: "${project.name}_min") {
-//    baseName = "${project.name}_min"
-//    version = project.version
-//    String rootClass = 'org.libplctag.Tag'
-//    String className = 'Tag'
-//
-//    from(sourceSets.main.output) {
-//        include "org/libplctag/**"
-//    }
-//
-//    from{
-//        ["LICENSE-2.LGPL","LICENSE-1.MPL"]
-//    }
-//
-//    manifest {
-//        attributes "Implementation-Title": "$className",
-//                   "Implementation-Version": "$version",
-//                   "Main-Class": "$rootClass"
-//    }
-//}
-//
-//task maxJar(type: Jar, name: "${project.name}_max") {
-//    archivesBaseName = "${project.name}_max"
-//    version = project.version
-//    String rootClass = 'org.libplctag.Tag'
-//    String className = 'Tag'
-//
-//    from(sourceSets.main.output) {
-//        include "**"
-//    }
-//
-//    from {
-//        configurations.compile.collect {
-//            it.isDirectory() ? it : zipTree(it)
-//        }
-//    }
-//
-//    from{
-//        ["LICENSE-2.LGPL","LICENSE-1.MPL"]
-//    }
-//}
