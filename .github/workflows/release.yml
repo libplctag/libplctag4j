@@ -83,7 +83,7 @@ jobs:
     - name: Build POM file
       run: gradle -b build-jar.gradle publishToMavenLocal
 
-    - name: Get artifact name
+    - name: Get artifact names
       run: |
         ls ${{ github.workspace }}/build/libs/libplctag4j*
         export FULL_NAME=`ls ${{ github.workspace }}/build/libs/libplctag4j-*.jar | tail -n 1`
@@ -109,71 +109,84 @@ jobs:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ env.FULL_NAME }}
 
-    - name: Upload docs to GitHub
+    - name: Upload docs to GitHub JAR
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ github.workspace }}/build/docs
 
-    - name: Upload JAR to Bintray
-      run: |
-        ls ${{ github.workspace }}/build/libs
-        if [ -e ${{ env.FULL_NAME }} ]; then
-          echo "Uploading JAR file."
-          echo "curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.jar?publish=1&override=1"
-          curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} 'https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}//io/github/libplctag//libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.jar?publish=1&override=1'
-        else
-          echo "Full JAR file not found!"
-        fi
+    - name: Upload AAR to GitHub
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.ARTIFACT_NAME }}-aar
+        path: ${{ env.AAR_NAME }}
 
-    - name: Upload AAR to Bintray
-      run: |
-        ls ${{ github.workspace }}/build/outputs/aar
-        if [ -e ${{ env.AAR_NAME }} ]; then
-          echo "Uploading AAR file."
-          echo "curl -T ${{ env.AAR_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.aar?publish=1&override=1"
-          curl -T ${{ env.AAR_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} 'https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}//io/github/libplctag//libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.aar?publish=1&override=1'
-        else
-          echo "AAR file not found!"
-        fi
+    - name: Upload docs to GitHub AAR
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.ARTIFACT_NAME }}-aar
+        path: ${{ github.workspace }}/build/docs
 
-    - name: Upload sources JAR to Bintray
-      run: |
-        ls -lR ${{ github.workspace }}/src/main/java
-        if [ -d ${{ github.workspace }}/src/main/java ]; then
-          echo "Creating source JAR file."
-          pushd ${{ github.workspace }}/src/main/java
-          jar cvf ${{ github.workspace }}/sources.jar io
-          popd
-          echo "Uploading source JAR file."
-          echo "curl -T ${{ github.workspace }}/sources.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-sources.jar?publish=1&override=1"
-          curl -T ${{ github.workspace }}/sources.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} 'https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}//io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-sources.jar?publish=1&override=1'
-        else
-          echo "Sources directory not found!"
-        fi
 
-    - name: Upload javadoc JAR to Bintray
-      run: |
-        ls -lR ${{ github.workspace }}/build/docs/javadoc
-        if [ -d ${{ github.workspace }}/build/docs/javadoc ]; then
-          echo "Creating javadoc JAR file."
-          pushd ${{ github.workspace }}/build/docs/javadoc
-          jar cvf ${{ github.workspace }}/javadoc.jar *
-          popd
-          echo "Uploading javadoc JAR file."
-          echo "curl -T ${{ github.workspace }}/javadoc.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-javadoc.jar?publish=1&override=1"
-          curl -T ${{ github.workspace }}/javadoc.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} 'https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}//io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-javadoc.jar?publish=1&override=1'
-        else
-          echo "Javadoc directory not found!"
-        fi
+    # - name: Upload JAR to Bintray
+    #   run: |
+    #     ls ${{ github.workspace }}/build/libs
+    #     if [ -e ${{ env.FULL_NAME }} ]; then
+    #       echo "Uploading JAR file."
+    #       echo "curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.jar?publish=1&override=1"
+    #       curl -T ${{ env.FULL_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} 'https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}//io/github/libplctag//libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.jar?publish=1&override=1'
+    #     else
+    #       echo "Full JAR file not found!"
+    #     fi
 
-    - name: Upload POM to Bintray
-      run: |
-        ls ${{ github.workspace }}/build/publications/mavenJava/
-        if [ -e "${{ env.POM_NAME }}" ]; then
-          echo "Uploading POM file."
-          echo "curl -T ${{ env.POM_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.pom?publish=1&override=1"
-          curl -T ${{ env.POM_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} 'https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.pom?publish=1&override=1'
-        else
-          echo "POM file found!"
-        fi
+    # - name: Upload AAR to Bintray
+    #   run: |
+    #     ls ${{ github.workspace }}/build/outputs/aar
+    #     if [ -e ${{ env.AAR_NAME }} ]; then
+    #       echo "Uploading AAR file."
+    #       echo "curl -T ${{ env.AAR_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.aar?publish=1&override=1"
+    #       curl -T ${{ env.AAR_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} 'https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}//io/github/libplctag//libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.aar?publish=1&override=1'
+    #     else
+    #       echo "AAR file not found!"
+    #     fi
+
+    # - name: Upload sources JAR to Bintray
+    #   run: |
+    #     ls -lR ${{ github.workspace }}/src/main/java
+    #     if [ -d ${{ github.workspace }}/src/main/java ]; then
+    #       echo "Creating source JAR file."
+    #       pushd ${{ github.workspace }}/src/main/java
+    #       jar cvf ${{ github.workspace }}/sources.jar io
+    #       popd
+    #       echo "Uploading source JAR file."
+    #       echo "curl -T ${{ github.workspace }}/sources.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-sources.jar?publish=1&override=1"
+    #       curl -T ${{ github.workspace }}/sources.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} 'https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}//io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-sources.jar?publish=1&override=1'
+    #     else
+    #       echo "Sources directory not found!"
+    #     fi
+
+    # - name: Upload javadoc JAR to Bintray
+    #   run: |
+    #     ls -lR ${{ github.workspace }}/build/docs/javadoc
+    #     if [ -d ${{ github.workspace }}/build/docs/javadoc ]; then
+    #       echo "Creating javadoc JAR file."
+    #       pushd ${{ github.workspace }}/build/docs/javadoc
+    #       jar cvf ${{ github.workspace }}/javadoc.jar *
+    #       popd
+    #       echo "Uploading javadoc JAR file."
+    #       echo "curl -T ${{ github.workspace }}/javadoc.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-javadoc.jar?publish=1&override=1"
+    #       curl -T ${{ github.workspace }}/javadoc.jar -ukyle-github:${{secrets.BINTRAY_API_KEY}} 'https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}//io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}-javadoc.jar?publish=1&override=1'
+    #     else
+    #       echo "Javadoc directory not found!"
+    #     fi
+
+    # - name: Upload POM to Bintray
+    #   run: |
+    #     ls ${{ github.workspace }}/build/publications/mavenJava/
+    #     if [ -e "${{ env.POM_NAME }}" ]; then
+    #       echo "Uploading POM file."
+    #       echo "curl -T ${{ env.POM_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.pom?publish=1&override=1"
+    #       curl -T ${{ env.POM_NAME }} -ukyle-github:${{secrets.BINTRAY_API_KEY}} 'https://api.bintray.com/content/kyle-github/libplctag4j/io.github.libplctag/${{ env.VERSION }}/io/github/libplctag/libplctag4j/${{ env.VERSION }}/libplctag4j-${{ env.VERSION }}.pom?publish=1&override=1'
+    #     else
+    #       echo "POM file found!"
+    #     fi
