@@ -80,7 +80,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        android.ndkVersion  "21.3.6528147"
+        android.ndkVersion  "21.4.7075529"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
