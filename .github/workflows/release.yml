@@ -74,14 +74,14 @@ jobs:
     - name: Build Release JAR
       run: gradle -b build-jar.gradle clean shadowJar
 
-    - name: Build Release AAR
-      run: gradle -b build-aar.gradle clean assembleRelease --stacktrace --info
-
     - name: Build Javadoc
       run: gradle -b build-jar.gradle javadoc
 
     - name: Build POM file
       run: gradle -b build-jar.gradle publishToMavenLocal
+
+    - name: Build Release AAR
+      run: gradle -b build-aar.gradle clean assembleRelease --stacktrace --info
 
     - name: Get artifact names
       run: |
