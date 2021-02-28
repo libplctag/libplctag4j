@@ -16,6 +16,12 @@ gradlew.bat
 # remove all VSCode stuff.
 .vscode/*
 
+# remove all Eclipse stuff
+.metadata/*
+
+# do not pick up class files.
+*.class
+
 # random debugging files.
 log
 .idea/*
