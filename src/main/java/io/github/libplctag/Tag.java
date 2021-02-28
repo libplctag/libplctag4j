@@ -34,59 +34,25 @@
 
 package io.github.libplctag;
 
-import java.io.File;
-import java.io.IOException;
+//import java.io.File;
+//import java.io.IOException;
 
 import com.sun.jna.Callback;
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
-import com.sun.jna.Platform;
+//import com.sun.jna.Platform;
+import com.sun.jna.Pointer;
 
 public class Tag {
     public static final String JNA_LIBRARY_NAME = "plctag";
     private static NativeLibrary nativeLib = null;
 
     static {
-        /* DEBUG - output the Java system path */
-        // String property = System.getProperty("java.library.path");
-        //StringTokenizer parser = new StringTokenizer(property, ":");
+    	// set to true when debugging
+    	System.setProperty("jna.debug_load", "true");
 
-        // while (parser.hasMoreTokens()) {
-        //     System.err.println("Path search segment: " + parser.nextToken());
-        // }
-
-        System.setProperty("jna.debug_load", "true");
-
-//        try {
-//            //nativeLib = NativeLibrary.getInstance(Tag.JNA_LIBRARY_NAME);
-//            nativeLib = NativeLibrary.getInstance("/home/kyle/Documents/Projects/libplctag/libplctag-org/libplctag4j/native_libs/linux-x86-64/libplctag.so");
-//            System.err.println("Found library in system path!");
-//        } catch(UnsatisfiedLinkError e1) {
-//            // System.err.println("Unable to find library in system, will try DLL.");
-//
-//            try {
-//                // try to extract the library from the DLL.
-//                File libFile = Native.extractFromResourcePath(Tag.JNA_LIBRARY_NAME, Tag.class.getClassLoader());
-//
-//                try {
-//                    nativeLib = NativeLibrary.getInstance(libFile.getAbsolutePath());
-//                    // System.err.println("Loaded library from native DLL in \"" + libFile.getAbsolutePath() + "\".");
-//                } catch(UnsatisfiedLinkError e3) {
-//                    // System.err.println("Unable to load native DLL from path \"" + libFile.getAbsolutePath() + "\"!");
-//                    // System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
-//                    throw e3;
-//                }
-//            } catch(IOException e2) {
-//                // System.err.println("Unable to extract library \"" + Tag.JNA_LIBRARY_NAME + "\" from JAR!");
-//                //System.exit(Tag.PLCTAG_ERR_NOT_FOUND);
-//                //System.err.println("Unable to extract library, got IOException: " + e2.getMessage());
-//                //e2.printStackTrace();
-//                throw new RuntimeException("Unable to extract library \"" + Tag.JNA_LIBRARY_NAME + "\" for OS " + System.getProperty("os.arch") + " and architecture " + Platform.ARCH.toString() + " from JAR!");
-//            }
-//        }
-
-        // we found the library, try to set it up for JNA
-        // FIXME? do we need to be synchronized here?
+        // TODO do we need to be synchronized here?
         synchronized(Tag.class) {
             try {
                 // map all native methods in this class to the library.
@@ -97,8 +63,8 @@ public class Tag {
                 throw e4;
             }
 
-            if(!Tag.checkLibraryVersion(2, 1, 16)) {
-                throw new RuntimeException("Unable to load required library version, 2.1.16, or later!");
+            if(!Tag.checkLibraryVersion(2, 3, 4)) {
+                throw new RuntimeException("Unable to load required library version, 2.3.4, or later!");
             }
         }
     }
@@ -611,6 +577,108 @@ public class Tag {
 
     private static native int plc_tag_set_float32(int tag_id, int offset, float val);
 
+    /* raw byte bulk access */
+
+    public int setRawBytes(int offset, byte[] buffer) {
+        int rc = Tag.PLCTAG_STATUS_OK;
+        Pointer ptr = new Memory(buffer.length);
+
+        // copy the buffer data into the memory we just allocated.
+        if(ptr != null) {
+            ptr.write(0, buffer, 0, buffer.length);
+            rc = plc_tag_set_raw_bytes(this.tag_id, offset, ptr, buffer.length);
+        } else {
+            rc = Tag.PLCTAG_ERR_NO_MEM;
+        }
+
+        return rc;
+    }
+    private static native int plc_tag_set_raw_bytes(int id, int offset, Pointer buffer, int buffer_length);
+
+
+    public int getRawBytes(int offset, byte[] target) {
+        int rc = Tag.PLCTAG_STATUS_OK;
+        Pointer ptr = new Memory(target.length);
+
+        // copy the buffer data into the memory we just allocated.
+        if(ptr != null) {
+            rc = plc_tag_get_raw_bytes(this.tag_id, offset, ptr, target.length);
+
+            if(rc == Tag.PLCTAG_STATUS_OK) {
+                // copy the data back.
+                byte[] source = ptr.getByteArray(0, target.length);
+
+                System.arraycopy(source, 0, target, 0, target.length);
+            }
+        } else {
+            rc = Tag.PLCTAG_ERR_NO_MEM;
+        }
+
+        return rc;
+    }
+    private static native int plc_tag_get_raw_bytes(int id, int offset, Pointer buffer, int buffer_length);
+
+
+
+    /* string accessors */
+
+
+    public String getString(int offset) {
+        int rc = Tag.PLCTAG_STATUS_OK;
+
+        rc = plc_tag_get_string_length(this.tag_id, offset);
+
+        // did we get a good string?
+        if(rc >= 0) {
+            byte[] buf = new byte[rc + 1]; // add one for the zero termination
+
+            rc = plc_tag_get_string(this.tag_id, offset, buf, buf.length);
+
+            if(rc == Tag.PLCTAG_STATUS_OK) {
+                return Native.toString(buf);
+            }
+        }
+
+        return null;
+    }
+    private static native int plc_tag_get_string(int tag_id, int string_start_offset, byte[] buffer, int buffer_length);
+
+    public int setString(int offset, String val) {
+        int rc = Tag.PLCTAG_STATUS_OK;
+        byte[] src = val.getBytes();
+
+        rc = plc_tag_set_string(this.tag_id, offset, src);
+
+        return rc;
+    }
+    private static native int plc_tag_set_string(int tag_id, int string_start_offset, byte[] string_val);
+
+    public int getStringLength(int offset) {
+        int rc = Tag.PLCTAG_STATUS_OK;
+
+        rc = plc_tag_get_string_length(this.tag_id, offset);
+
+        return rc;
+    }
+    private static native int plc_tag_get_string_length(int tag_id, int string_start_offset);
+
+    public int getStringCapacity(int offset) {
+        int rc = Tag.PLCTAG_STATUS_OK;
+
+        rc = plc_tag_get_string_capacity(this.tag_id, offset);
+
+        return rc;
+    }
+    private static native int plc_tag_get_string_capacity(int tag_id, int string_start_offset);
+
+    public int getStringTotalLength(int offset) {
+        int rc = Tag.PLCTAG_STATUS_OK;
+
+        rc = plc_tag_get_string_total_length(this.tag_id, offset);
+
+        return rc;
+    }
+    private static native int plc_tag_get_string_total_length(int tag_id, int string_start_offset);
 
 
     /**
