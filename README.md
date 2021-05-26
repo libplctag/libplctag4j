@@ -60,10 +60,10 @@ For Intel/AMD-based Windows, Linux or macOS:
 1. Install Git, JDK 8+ and Gradle for your OS platform.
 2. Checkout the source with Git: `git clone https://github.com/libplctag/libplctag4j`
 3. In a command line window enter the directory/folder in which you checked out the project.
-4. Run `gradle build`
+4. Run `gradle -b build-jar.gradle clean shadowJar`
 5. You will find the JAR files in `build/libs`.
 
-You can use an IDE such as IntelliJ, Eclipse or Visual Studio Code.  All of these either natively handle the Gradle build files or have plugins that will support Gradle.
+You can use an IDE such as IntelliJ, Eclipse or Visual Studio Code.  All of these either natively handle the Gradle build files or have plugins that will support Gradle.  Note the non-standard Gradle command above.  You may need to edit the IDE configuration to support that directly.  I build on the command line for simplicity.
 
 ## Tier 1 Platforms
 
