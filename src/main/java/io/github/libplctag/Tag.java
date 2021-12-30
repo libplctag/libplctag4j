@@ -63,8 +63,8 @@ public class Tag {
                 throw e4;
             }
 
-            if(!Tag.checkLibraryVersion(2, 3, 4)) {
-                throw new RuntimeException("Unable to load required library version, 2.3.4, or later!");
+            if(!Tag.checkLibraryVersion(2, 4, 8)) {
+                throw new RuntimeException("Unable to load required library version, 2.4.8, or later!");
             }
         }
     }
