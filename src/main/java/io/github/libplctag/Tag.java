@@ -64,7 +64,10 @@ public class Tag {
             }
 
             if(!Tag.checkLibraryVersion(2, 4, 8)) {
-                throw new RuntimeException("Unable to load required library version, 2.4.8, or later!");
+                int version_major = Tag.getLibraryIntAttribute("version_major", 0);
+                int version_minor = Tag.getLibraryIntAttribute("version_minor", 0);
+                int version_patch = Tag.getLibraryIntAttribute("version_patch", 0);
+                throw new RuntimeException("Unable to load required library version, 2.4.8, or later. Found version " + version_major + "." + version_minor + "." + version_patch + "!");
             }
         }
     }
@@ -114,6 +117,73 @@ public class Tag {
     public static final int PLCTAG_ERR_BUSY            = (-39);
 
 
+    /**
+     * Decode the passed status code into a string.
+     *
+     * @param rc a result/status code
+     * @return a String indicating the error type.
+     */
+
+    public static String decodeError(int rc) {
+    	return Tag.plc_tag_decode_error(rc);
+    }
+
+    private static native String plc_tag_decode_error(int rc);
+
+
+
+
+    // debug levels
+    public static final int PLCTAG_DEBUG_NONE          = (0);
+    public static final int PLCTAG_DEBUG_ERROR         = (1);
+    public static final int PLCTAG_DEBUG_WARN          = (2);
+    public static final int PLCTAG_DEBUG_INFO          = (3);
+    public static final int PLCTAG_DEBUG_DETAIL        = (4);
+    public static final int PLCTAG_DEBUG_SPEW          = (5);
+
+    private static final int PLCTAG_DEBUG_LAST         = (6);
+
+    public static void setDebugLevel(int level) {
+        if(level >= 0 && level < PLCTAG_DEBUG_LAST) {
+            Tag.plc_tag_set_debug_level(level);
+        }
+    }
+
+    private static native void plc_tag_set_debug_level(int debug_level);
+
+
+
+    /**
+    * Check that the library supports the required API version.
+    *
+    * The version is passed as integers.   The three arguments are:
+    *
+    * @param major_ver - the major version of the library.  This must be an exact match.
+    * @param minor_ver - the minor version of the library.   The library must have a minor
+    *             version greater than or equal to the requested version.
+    * @param patch_ver - the patch version of the library.   The library must have a patch
+    *             version greater than or equal to the requested version if the minor
+    *             version is the same as that requested.   If the library minor version
+    *             is greater than that requested, any patch version will be accepted.
+    *
+    * @return true is returned if the version is compatible.  If it does not,
+    * false is returned.
+    *
+    * Examples:
+    *
+    * To match version 2.1.4, call Tag.checkLibraryVersion(2, 1, 4).
+    */
+
+    public static boolean checkLibraryVersion(int major_ver, int minor_ver, int patch_ver) {
+    	if(Tag.plc_tag_check_lib_version(major_ver, minor_ver, patch_ver) == Tag.PLCTAG_STATUS_OK) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+
+    private static native int plc_tag_check_lib_version(int req_major, int req_minor, int req_patch);
+
 
     /**
      * Create a new tag based on the passed attributed string.  The attributes
@@ -147,9 +217,35 @@ public class Tag {
 
 
     /**
+    * shutdownLibrary
+    *
+    * Some systems may not call the atexit() handlers.  In those cases, wrappers should
+    * call this function before unloading the library or terminating.   Most OSes will cleanly
+    * recover all system resources when a process is terminated and this will not be necessary.
+    *
+    * THIS IS NOT THREAD SAFE!   Do not call this if you have multiple threads running against
+    * the library.  You have been warned.   Close all tags first with plc_tag_destroy() and make
+    * sure that nothing can call any library functions until this function returns.
+    *
+    * Normally you do not need to call this function.   This is only for certain wrappers or
+    * operating environments that use libraries in ways that prevent the normal exit handlers
+    * from working.
+    */
+
+    public static void shutdownLibrary() {
+        Tag.plc_tag_shutdown();
+    }
+
+    private static native void plc_tag_shutdown();
+
+
+
+    /**
      * Close the tag.
      *
      * This provides programatic control over the resources uses in the native library.  Note that
+     * this will return the result of the plc_tag_destroy() operation.
+     *
      * @return a status code of the operation.
      */
 
@@ -169,18 +265,153 @@ public class Tag {
 
     private static native int plc_tag_destroy(int tag_id);
 
+
+
+
     /**
-     * Decode the passed status code into a string.
+     * registerEventCallback
      *
-     * @param rc a result/status code
-     * @return a String indicating the error type.
+     * This function registers the passed callback function with the tag.  Only one callback function
+     * may be registered on a tag at a time!
+     *
+     * Once registered, any of the following operations on or in the tag will result in the callback
+     * being called:
+     *
+     *      * starting a tag read operation.
+     *      * a tag read operation ending.
+     *      * a tag read being aborted.
+     *      * starting a tag write operation.
+     *      * a tag write operation ending.
+     *      * a tag write being aborted.
+     *      * a tag being destroyed
+     *
+     * The callback is called outside of the internal tag mutex so it can call any tag functions safely.   However,
+     * the callback is called in the context of the internal tag helper thread and not the client library thread(s).
+     * This means that YOU are responsible for making sure that all client application data structures the callback
+     * function touches are safe to access by the callback!
+     *
+     * Do not do any operations in the callback that block for any significant time.   This will cause library
+     * performance to be poor or even to start failing!
+     *
+     * When the callback is called with the PLCTAG_EVENT_DESTROY_STARTED, do not call any tag functions.  It is
+     * not guaranteed that they will work and they will possibly hang or fail.
+     *
+     * Return values:
+     *
+     * If there is already a callback registered, the function will return PLCTAG_ERR_DUPLICATE.   Only one callback
+     * function may be registered at a time on each tag.
+     *
+     * If all is successful, the function will return PLCTAG_STATUS_OK.
      */
 
-    public static String decodeError(int rc) {
-    	return Tag.plc_tag_decode_error(rc);
+
+    public static final int PLCTAG_EVENT_READ_STARTED      = (1);
+    public static final int PLCTAG_EVENT_READ_COMPLETED    = (2);
+    public static final int PLCTAG_EVENT_WRITE_STARTED     = (3);
+    public static final int PLCTAG_EVENT_WRITE_COMPLETED   = (4);
+    public static final int PLCTAG_EVENT_ABORTED           = (5);
+    public static final int PLCTAG_EVENT_DESTROYED         = (6);
+
+    public interface EventCallbackInterface extends Callback {
+        void invoke(int tag_id, int event, int status);
     }
 
-    private static native String plc_tag_decode_error(int rc);
+    // Keep a reference here so that GC does not get it.
+    private EventCallbackInterface eventCallback;
+
+    public int registerEventCallback(EventCallbackInterface callback) {
+        int rc = Tag.plc_tag_register_callback(this.tag_id, callback);
+
+        if(rc == Tag.PLCTAG_STATUS_OK) {
+            this.eventCallback = callback;
+        }
+
+        return rc;
+    }
+
+    private static native int plc_tag_register_callback(int tag_id, EventCallbackInterface callback);
+
+
+    /*
+    * unregisterEventCallback
+    *
+    * This function removes the callback already registered on the tag.
+    *
+    * Return values:
+    *
+    * The function returns PLCTAG_STATUS_OK if there was a registered callback and removing it went well.
+    * An error of PLCTAG_ERR_NOT_FOUND is returned if there was no registered callback.
+    */
+
+    public int unregisterEventCallback() {
+        this.eventCallback = null;
+        return Tag.plc_tag_unregister_callback(this.tag_id);
+    }
+
+    private static native int plc_tag_unregister_callback(int tag_id);
+
+
+
+
+    /**
+    * registerLogger
+    *
+    * This function registers the passed callback function with the _library_.  Only one callback function
+    * may be registered with the library at a time!
+    *
+    * Once registered, the function will be called with any logging message that is normally printed due
+    * to the current log level setting.
+    *
+    * WARNING: the callback will usually be called when the internal tag API mutex is held.   You cannot
+    * call any tag functions within the callback!
+    *
+    * Return values:
+    *
+    * If there is already a callback registered, the function will return PLCTAG_ERR_DUPLICATE.   Only one callback
+    * function may be registered at a time on each tag.
+    *
+    * If all is successful, the function will return PLCTAG_STATUS_OK.
+    */
+
+    public interface LoggingCallbackInterface extends Callback {
+        void invoke(int tag_id, int debugLevel, String msg);
+    }
+
+    /* as with the event callback, we need to keep this to prevent GC from getting it. */
+    private static LoggingCallbackInterface loggingCallback;
+
+    public static synchronized int registerLoggerCallback(LoggingCallbackInterface callback) {
+        int rc = Tag.plc_tag_register_logger(callback);
+
+        if(rc == Tag.PLCTAG_STATUS_OK) {
+            Tag.loggingCallback = callback;
+        }
+
+        return rc;
+    }
+
+    private static native int plc_tag_register_logger(LoggingCallbackInterface callback);
+
+
+    /*
+    * unregisterLogger
+    *
+    * This function removes the logger callback already registered for the library.
+    *
+    * Return values:
+    *
+    * The function returns PLCTAG_STATUS_OK if there was a registered callback and removing it went well.
+    * An error of PLCTAG_ERR_NOT_FOUND is returned if there was no registered callback.
+    */
+
+    public static synchronized int unregisterLogger() {
+        Tag.loggingCallback = null;
+        return Tag.plc_tag_unregister_logger();
+    }
+
+    private static native int plc_tag_unregister_logger();
+
+
 
 
 
@@ -258,56 +489,6 @@ public class Tag {
 
     private static native int plc_tag_write(int tag_id, int timeout);
 
-    // debug levels
-    public static final int PLCTAG_DEBUG_NONE          = (0);
-    public static final int PLCTAG_DEBUG_ERROR         = (1);
-    public static final int PLCTAG_DEBUG_WARN          = (2);
-    public static final int PLCTAG_DEBUG_INFO          = (3);
-    public static final int PLCTAG_DEBUG_DETAIL        = (4);
-    public static final int PLCTAG_DEBUG_SPEW          = (5);
-
-    private static final int PLCTAG_DEBUG_LAST         = (6);
-
-    public static void setDebugLevel(int level) {
-        if(level >= 0 && level < PLCTAG_DEBUG_LAST) {
-            Tag.plc_tag_set_debug_level(level);
-        }
-    }
-
-    private static native void plc_tag_set_debug_level(int debug_level);
-
-
-
-    /**
-    * Check that the library supports the required API version.
-    *
-    * The version is passed as integers.   The three arguments are:
-    *
-    * @param major_ver - the major version of the library.  This must be an exact match.
-    * @param minor_ver - the minor version of the library.   The library must have a minor
-    *             version greater than or equal to the requested version.
-    * @param patch_ver - the patch version of the library.   The library must have a patch
-    *             version greater than or equal to the requested version if the minor
-    *             version is the same as that requested.   If the library minor version
-    *             is greater than that requested, any patch version will be accepted.
-    *
-    * @return true is returned if the version is compatible.  If it does not,
-    * false is returned.
-    *
-    * Examples:
-    *
-    * To match version 2.1.4, call Tag.checkLibraryVersion(2, 1, 4).
-    */
-
-    public static boolean checkLibraryVersion(int major_ver, int minor_ver, int patch_ver) {
-    	if(Tag.plc_tag_check_lib_version(major_ver, minor_ver, patch_ver) == Tag.PLCTAG_STATUS_OK) {
-    		return true;
-    	} else {
-    		return false;
-    	}
-    }
-
-    private static native int plc_tag_check_lib_version(int req_major, int req_minor, int req_patch);
 
 
     /**
@@ -375,18 +556,36 @@ public class Tag {
 
 
     /**
-     * size
+     * getSize
      *
      * Get the size of the tag in bytes.   This is the size of the internal buffer for the tag.
      *
      * @return return the size of the tag in bytes.  Will return negative values for errors.
      */
 
-    public int size() {
+    public int getSize() {
         return Tag.plc_tag_get_size(this.tag_id);
     }
 
     private static native int plc_tag_get_size(int tag_id);
+
+
+    /**
+     * setSize
+     *
+     * Set the size of the tag in bytes.   This is the size of the internal buffer for the tag.
+     *
+     * @param newSize The new size of the tag buffer in bytes.  Can be larger or smaller than the current size.
+     * @return return the old size of the tag in bytes.  Will return negative values for errors.
+     */
+
+
+    public int setSize(int newSize) {
+        return Tag.plc_tag_set_size(this.tag_id, newSize);
+    }
+
+    private static native int plc_tag_set_size(int tag_id, int newSize);
+
 
 
     /* data routines */
@@ -679,174 +878,6 @@ public class Tag {
         return rc;
     }
     private static native int plc_tag_get_string_total_length(int tag_id, int string_start_offset);
-
-
-    /**
-    * shutdownLibrary
-    *
-    * Some systems may not call the atexit() handlers.  In those cases, wrappers should
-    * call this function before unloading the library or terminating.   Most OSes will cleanly
-    * recover all system resources when a process is terminated and this will not be necessary.
-    *
-    * THIS IS NOT THREAD SAFE!   Do not call this if you have multiple threads running against
-    * the library.  You have been warned.   Close all tags first with plc_tag_destroy() and make
-    * sure that nothing can call any library functions until this function returns.
-    *
-    * Normally you do not need to call this function.   This is only for certain wrappers or
-    * operating environments that use libraries in ways that prevent the normal exit handlers
-    * from working.
-    */
-
-    public static void shutdownLibrary() {
-        Tag.plc_tag_shutdown();
-    }
-
-    private static native void plc_tag_shutdown();
-
-
-    /**
-     * registerEventCallback
-     *
-     * This function registers the passed callback function with the tag.  Only one callback function
-     * may be registered on a tag at a time!
-     *
-     * Once registered, any of the following operations on or in the tag will result in the callback
-     * being called:
-     *
-     *      * starting a tag read operation.
-     *      * a tag read operation ending.
-     *      * a tag read being aborted.
-     *      * starting a tag write operation.
-     *      * a tag write operation ending.
-     *      * a tag write being aborted.
-     *      * a tag being destroyed
-     *
-     * The callback is called outside of the internal tag mutex so it can call any tag functions safely.   However,
-     * the callback is called in the context of the internal tag helper thread and not the client library thread(s).
-     * This means that YOU are responsible for making sure that all client application data structures the callback
-     * function touches are safe to access by the callback!
-     *
-     * Do not do any operations in the callback that block for any significant time.   This will cause library
-     * performance to be poor or even to start failing!
-     *
-     * When the callback is called with the PLCTAG_EVENT_DESTROY_STARTED, do not call any tag functions.  It is
-     * not guaranteed that they will work and they will possibly hang or fail.
-     *
-     * Return values:
-     *
-     * If there is already a callback registered, the function will return PLCTAG_ERR_DUPLICATE.   Only one callback
-     * function may be registered at a time on each tag.
-     *
-     * If all is successful, the function will return PLCTAG_STATUS_OK.
-     */
-
-
-    public static final int PLCTAG_EVENT_READ_STARTED      = (1);
-    public static final int PLCTAG_EVENT_READ_COMPLETED    = (2);
-    public static final int PLCTAG_EVENT_WRITE_STARTED     = (3);
-    public static final int PLCTAG_EVENT_WRITE_COMPLETED   = (4);
-    public static final int PLCTAG_EVENT_ABORTED           = (5);
-    public static final int PLCTAG_EVENT_DESTROYED         = (6);
-
-    public interface EventCallbackInterface extends Callback {
-        void invoke(int tag_id, int event, int status);
-    }
-
-    // Keep a reference here so that GC does not get it.
-    private EventCallbackInterface eventCallback;
-
-    public int registerEventCallback(EventCallbackInterface callback) {
-        int rc = Tag.plc_tag_register_callback(this.tag_id, callback);
-
-        if(rc == Tag.PLCTAG_STATUS_OK) {
-            this.eventCallback = callback;
-        }
-
-        return rc;
-    }
-
-    private static native int plc_tag_register_callback(int tag_id, EventCallbackInterface callback);
-
-
-    /*
-    * unregisterEventCallback
-    *
-    * This function removes the callback already registered on the tag.
-    *
-    * Return values:
-    *
-    * The function returns PLCTAG_STATUS_OK if there was a registered callback and removing it went well.
-    * An error of PLCTAG_ERR_NOT_FOUND is returned if there was no registered callback.
-    */
-
-    public int unregisterEventCallback() {
-        this.eventCallback = null;
-        return Tag.plc_tag_unregister_callback(this.tag_id);
-    }
-
-    private static native int plc_tag_unregister_callback(int tag_id);
-
-
-
-
-    /**
-    * registerLogger
-    *
-    * This function registers the passed callback function with the _library_.  Only one callback function
-    * may be registered with the library at a time!
-    *
-    * Once registered, the function will be called with any logging message that is normally printed due
-    * to the current log level setting.
-    *
-    * WARNING: the callback will usually be called when the internal tag API mutex is held.   You cannot
-    * call any tag functions within the callback!
-    *
-    * Return values:
-    *
-    * If there is already a callback registered, the function will return PLCTAG_ERR_DUPLICATE.   Only one callback
-    * function may be registered at a time on each tag.
-    *
-    * If all is successful, the function will return PLCTAG_STATUS_OK.
-    */
-
-    public interface LoggingCallbackInterface extends Callback {
-        void invoke(int tag_id, int debugLevel, String msg);
-    }
-
-    /* as with the event callback, we need to keep this to prevent GC from getting it. */
-    private static LoggingCallbackInterface loggingCallback;
-
-    public static synchronized int registerLoggerCallback(LoggingCallbackInterface callback) {
-        int rc = Tag.plc_tag_register_logger(callback);
-
-        if(rc == Tag.PLCTAG_STATUS_OK) {
-            Tag.loggingCallback = callback;
-        }
-
-        return rc;
-    }
-
-    private static native int plc_tag_register_logger(LoggingCallbackInterface callback);
-
-
-    /*
-    * unregisterLogger
-    *
-    * This function removes the logger callback already registered for the library.
-    *
-    * Return values:
-    *
-    * The function returns PLCTAG_STATUS_OK if there was a registered callback and removing it went well.
-    * An error of PLCTAG_ERR_NOT_FOUND is returned if there was no registered callback.
-    */
-
-    public static synchronized int unregisterLogger() {
-        Tag.loggingCallback = null;
-        return Tag.plc_tag_unregister_logger();
-    }
-
-    private static native int plc_tag_unregister_logger();
-
 
 
 
