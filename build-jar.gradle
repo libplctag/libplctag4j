@@ -52,7 +52,7 @@ repositories {
 dependencies {
     // we need JNA at compile time.
     //implementation 'net.java.dev.jna:jna:5.6.0'
-    implementation group: 'net.java.dev.jna', name: 'jna', version: '5.7.0'
+    implementation group: 'net.java.dev.jna', name: 'jna', version: '5.8.0'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
