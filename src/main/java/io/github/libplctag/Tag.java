@@ -63,7 +63,7 @@ public class Tag {
                 throw e4;
             }
 
-            if(!Tag.checkLibraryVersion(2, 4, 8)) {
+            if(!Tag.checkLibraryVersion(2, 4, 9)) {
                 int version_major = Tag.getLibraryIntAttribute("version_major", 0);
                 int version_minor = Tag.getLibraryIntAttribute("version_minor", 0);
                 int version_patch = Tag.getLibraryIntAttribute("version_patch", 0);
